@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!-- HTML by Yititi, 2024.02.04 -->
+
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <title>login</title>
+      <link rel="stylesheet" type="text/CSS" href="style.css" />
+  </head>
+
+  <body>
+    <div class="fixed-header">
+        <h0>Bee 🐝</h0>
+        <h1>login_mysql</h1>
+        <ul class="menu">
+	    <li><a href="/home">首頁</a></li>
+            <li><a href="/login">登入</a></li>
+            <li><a href="/products">產品介紹</a></li>
+            <li><a href="/service">服務項目</a></li>
+            <li><a href="/shopping">購物車</a></li>
+            <li><a href="/contact">聯絡我們</a></li>
+        </ul>
+      </div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <h1>Bee 🐝</h1>
+      <h2>- Lab303 2024 -</h2>
+      <p id="Introduce">Welcome to Bee, sharing some information about bees here :D
+        <!-- <br>Tap <a href=http://bem.bime.ntu.edu.tw/ target="_blank">here</a> to our website! -->
+      </p>
+
+    <!-- log in page -->
+    <div calss="form-container">
+      <h2>LOG IN</h2>
+
+      <form action="/login" method="post" class="login-form">
+        <!-- <img src="C:\Users\ASUS\Desktop\NTU\Lab303\bee1_1.jpg" alt="Background Image"> -->
+        <div class="form-group">
+          <br>
+          <label for="role">身分別</label>
+          <select id="role" name="role" required>
+            <option value="會員">會員</option>
+            <option value="管理員">管理員</option>
+          </select>
+        </div>
+
+        <div class="form-group">  
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required autocomplete="off">
+        </div>
+
+        <button type="submit">Login</button>
+        <br>
+        <br>
+        <button type="submit">忘記密碼</button>
+        <b>  ︱  </b>
+        <button id="signupButton" type="submit" formaction="/signup">註冊帳號</button>
+
+
+      </form>
+    </div>
+    <!-- ---------------------------------------------------------------------------------- -->
+
+
+  </body>
+</html>

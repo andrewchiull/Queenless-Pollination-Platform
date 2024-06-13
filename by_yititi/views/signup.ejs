@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEE - Sign Up</title>
+    <link rel="stylesheet" href="bee_style.css">
+</head>
+<body>
+    <div class="fixed-header">
+        <h1>Bee 🐝</h1>
+        <ul class="menu">
+            <li><a href="/home">首頁</a></li>
+            <li><a href="/login">登入</a></li>
+            <li><a href="/products">產品介紹</a></li>
+            <li><a href="/service">服務項目</a></li>
+            <li><a href="/shopping">購物車</a></li>
+            <li><a href="/contact">聯絡我們</a></li>
+        </ul>
+    </div>
+
+    <div id="page_signup" class="page">
+        <h2>SIGN UP</h2>
+        <form action="/signup" method="post" class="signup-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+    <script src="bee_script.js"></script>
+</body>
+</html>

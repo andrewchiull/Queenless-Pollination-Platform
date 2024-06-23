@@ -1,5 +1,14 @@
 // config.js
 const { Sequelize, DataTypes } = require('sequelize');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const timeZoneName = 'Asia/Taipei';
+const timeZoneOffset = dayjs().tz(timeZoneName).format('Z'); // +08:00
 
 // use dotenv to load environment variables
 const dotenv = require('dotenv');
@@ -9,9 +18,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     host: process.env.DB_HOST, // Assuming you're running the Node app on the same host as the Docker container
     port: process.env.DB_PORT, // The port mapping you specified
     dialect: 'mysql',
-    timezone: '+08:00', // Set the time zone for the Sequelize instance to Taipei (UTC+8)
+    timezone: timeZoneName, // Set the time zone for the Sequelize instance to 'Asia/Taipei'
     dialectOptions: {
-        timezone: 'Asia/Taipei' // Set the time zone for the database connection to Taipei
+        timezone: timeZoneOffset // Set timezone passed to Connection (must be '+08:00', not name)
     }
 });
 

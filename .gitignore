@@ -1,4 +1,6 @@
-*/.env
+*/.env*
+/.env.lab303
+
 */node_modules
 # Logs
 logs

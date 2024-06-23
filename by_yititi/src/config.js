@@ -69,22 +69,7 @@ const User = sequelize.define('User', {
   // Sequelize's DataTypes.DATE use different data type in different database.
   // For example, it's 'TIMESTAMP' for Postgres, but it's 'DATETIME' for MySQL.
   // See: [Sequelize Docs](https://sequelize.org/docs/v7/models/data-types/#dates)
-  hooks: {
-    beforeCreate: (options) => {
-      options.createdAt = Sequelize.literal('CURRENT_TIMESTAMP');
-      return options;
-    },
-    beforeUpdate: (options) => {
-      options.updatedAt = Sequelize.literal('CURRENT_TIMESTAMP');
-      return options;
-    },
-    beforeDestroy: (options) => {
-      options.deletedAt = Sequelize.literal('CURRENT_TIMESTAMP');
-      return options;
-    }
-    }
-  }
-);
+});
 
 sequelize.sync().then(async () => {
     // Insert an initial test user if not exists

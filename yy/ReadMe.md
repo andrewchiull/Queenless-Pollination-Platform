@@ -1,6 +1,6 @@
 # 無蜂王授粉網頁
 ## 環境設定
-本網頁使用 React+ node.js 進行開發，請安裝好 npm 或 yarn 進行 node_modules 相關安裝，相關安裝方式請參閱 [React 環境架設](https://eyesofkids.gitbooks.io/react-basic-zh-tw/content/day14_react_env/），下面的設定以 yarn 為教學，若要轉成 npm 指令請自己轉
+本網頁使用 React+ node.js 進行開發，請安裝好 npm 或 yarn 進行 node_modules 相關安裝，相關安裝方式請參閱 [React 環境架設](https://eyesofkids.gitbooks.io/react-basic-zh-tw/content/day14_react_env/)，下面的設定以 yarn 為教學，若要轉成 npm 指令請自己轉
 
 ## Run the project
 
@@ -19,13 +19,13 @@ yarn start
 1. 建立資料夾
    1. 建立一個工作資料夾，資料夾內部放入前端（frontend）與後端（backend）兩個資料夾
    ```
-   mkdir BuggiePro
-   cd BUggiePro
+   mkdir bee-web
+   cd bee-web
    yarn init -y  # 建立一個新專案
    create-react-app frontend # 建立frontend
    mkdir backend # 建立backend
    ```
-   2. 在 BuggiePro 資料夾內的“package.json” 裡頭加入這幾⾏，即可用 yarn start 指令開啟前端， yarn server 指令開啟後端
+   2. 在 bee-web 資料夾內的“package.json” 裡頭加入這幾⾏，即可用 yarn start 指令開啟前端， yarn server 指令開啟後端
    
    ```
    "scripts": {
@@ -39,18 +39,18 @@ yarn start
     ```
     yarn add -D nodemon
     ```
-   5. 把壓縮檔的內容解壓縮後的 frontend 資料夾中的 src 複製取代 BuggiePro 中的 frontend 內部的 src，壓縮檔內的 backend 資料夾中所有內容可以複製貼到 BuggiePro 中的 backend 中
+   5. 把壓縮檔的內容解壓縮後的 frontend 資料夾中的 src 複製取代 bee-web 中的 frontend 內部的 src，壓縮檔內的 backend 資料夾中所有內容可以複製貼到 bee-web 中的 backend 中
    
    6.  分別執行前端與後端指令，如果運行正常，可以在 http://localhost:4000/ 中找到網頁，即建立完畢，如果有錯誤的話看有什麼缺失套件就 “yarn add XXX ”加入
     第一個terminal
 
    ```bash=
-   cd BuggiePro
+   cd bee-web
    yarn server
    ```
    第二個terminal
    ```bash=
-   cd BuggiePro
+   cd bee-web
    yarn start
    ```
 
@@ -58,16 +58,16 @@ yarn start
 deploy在 http://140.112.94.126/ 上，需要先在本地端建立 docker image ，再透過遠端桌面的方式，透過 VM 部署
 
 ### 建立 docker image
-1. 進入 BuggiePro/frontend/src/api.js 內，把 baseURL 改成 http://140.112.94.126:4000/
+1. 進入 bee-web/frontend/src/api.js 內，把 baseURL 改成 http://140.112.94.126:4000/
 2. 進入 frontend 資料夾，將前端文檔轉成機械碼輸出
 ```bash=
-   cd BuggiePro/frontend
+   cd bee-web/frontend
    yarn build
 ```
 3. build 完後的檔案會儲存在 frontend/public 中，將 public 內的文件全部複製取代到 backend\pubic 內
 4. 進入 backend 中建立docker image (名字可以自己取，我這邊取node_app:0.11)，後轉成 tar 檔案傳到 deploy 位置(也可以用docker hub 分享，你方便就好)，此時應該會生成 tar 檔案，再把它分享到雲端讓遠端桌面下載
 ```bash=
-   cd BuggiePro/backend
+   cd bee-web/backend
    docker build -t node_app:0.11 . 
    docker save -o node_app:0.11.tar node_app:0.11
 ```

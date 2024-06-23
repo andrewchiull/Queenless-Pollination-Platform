@@ -12,7 +12,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 const User = sequelize.define('User', {
-    name: {
+    username: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
@@ -20,9 +20,26 @@ const User = sequelize.define('User', {
     password: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
     }
+}, {
+    timestamps: true // This will automatically add `createdAt` and `updatedAt` fields
 });
 
-sequelize.sync();
+sequelize.sync().then(async () => {
+    // Insert an initial test user if not exists
+    const testUser = await User.findOne({ where: { username: 'testuser' } });
+    if (!testUser) {
+        await User.create({
+            username: 'testuser',
+            password: 'hashedpassword', // Replace with a hashed password in a real application
+            email: 'testuser@example.com'
+        });
+    }
+});
 
 module.exports = { User, sequelize };

@@ -46,13 +46,14 @@ app.get("/shopping", (req, res) => {
 
 app.post("/signup", async (req, res) => {
     const data = {
-        name: req.body.username,
-        password: req.body.password
+        username: req.body.username,
+        password: req.body.password,
+        email: req.body.email
     };
 
-    const existingUser = await User.findOne({ where: { name: data.name } });
+    const existingUser = await User.findOne({ where: { [Sequelize.Op.or]: [{ username: data.username }, { email: data.email }] } });
     if (existingUser) {
-        res.send("User already exists. Please choose a different username.");
+        res.send("User already exists. Please choose a different username or email.");
     } else {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(data.password, saltRounds);

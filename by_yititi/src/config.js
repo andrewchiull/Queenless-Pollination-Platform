@@ -12,6 +12,7 @@ const timeZoneOffset = dayjs().tz(timeZoneName).format('Z'); // +08:00
 
 // use dotenv to load environment variables
 const dotenv = require('dotenv');
+const { Hooks } = require('sequelize/lib/hooks');
 dotenv.config();
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
@@ -44,22 +45,45 @@ const User = sequelize.define('User', {
         allowNull: false,
         unique: true
     },
-    created_at: {
+    createdAt: {
         type: 'TIMESTAMP',
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
     },
-    updated_at: {
+    updatedAt: {
         type: 'TIMESTAMP',
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    deletedAt: {
+        type: 'TIMESTAMP',
+        allowNull: true
     }
 }, {
-  timestamps: false // Disable Sequelize's automatic timestamp fields (createdAt and updatedAt)
-  // Sequelize use DataTypes.DATE for timestamp
-  // But when using Sequelize in MySQL, DataTypes.DATE is DATETIME
-  // So we need to use 'TIMESTAMP' instead of DataTypes.DATE
-}
+  timestamps: true, // Enable Sequelize's createdAt, updatedAt, deletedAt.
+
+  // To guarantee 'TIMESTAMP' (with timezone) instead of 'DATETIME' (without timezone),
+  // we need to use Sequelize.literal('CURRENT_TIMESTAMP') to override the default value.
+
+  // In timestamp fields (createdAt, updatedAt, deletedAt),
+  // Sequelize's DataTypes.DATE use different data type in different database.
+  // For example, it's 'TIMESTAMP' for Postgres, but it's 'DATETIME' for MySQL.
+  // See: [Sequelize Docs](https://sequelize.org/docs/v7/models/data-types/#dates)
+  hooks: {
+    beforeCreate: (options) => {
+      options.createdAt = Sequelize.literal('CURRENT_TIMESTAMP');
+      return options;
+    },
+    beforeUpdate: (options) => {
+      options.updatedAt = Sequelize.literal('CURRENT_TIMESTAMP');
+      return options;
+    },
+    beforeDestroy: (options) => {
+      options.deletedAt = Sequelize.literal('CURRENT_TIMESTAMP');
+      return options;
+    }
+    }
+  }
 );
 
 sequelize.sync().then(async () => {
@@ -70,6 +94,11 @@ sequelize.sync().then(async () => {
             username: 'testuser',
             password: 'hashedpassword', // Replace with a hashed password in a real application
             email: 'testuser@example.com'
+        });
+    } else {
+        // update email for testing
+        await testUser.update({
+            email: 'testuserupdated@example.com'
         });
     }
 });

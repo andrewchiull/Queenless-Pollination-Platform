@@ -49,13 +49,22 @@ const Home = () => {
       productId: product.id,
       quantity: quantities[product.id] || 0
     }));
-    // Handle form submission logic here
     const orderDetails = products
       .filter(product => quantities[product.id] > 0)
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
-    toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`);
+
     console.log({ name, email, address, order });
+    axios.post('/api/orders', { name, email, address, order })
+      .then(response => {
+        console.log(response);
+        
+        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`);
+      })
+      .catch(error => {
+        toast.error("提交訂單時出錯，請稍後再試！");
+        console.error("There was an error submitting the order!", error);
+      });
   };
 
   return (

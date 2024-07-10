@@ -68,6 +68,7 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
             onChange={(e) => setName(e.target.value)}
             fullWidth
             margin="normal"
+            required
           />
           <TextField
             label="電子郵件"
@@ -75,6 +76,7 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
+            required
           />
           <TextField
             label="地址"
@@ -82,6 +84,7 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
             onChange={(e) => setAddress(e.target.value)}
             fullWidth
             margin="normal"
+            required
           />
           <Button type="submit" variant="contained" color="primary" style={{ margin: '1rem 0 0 0', width: '100%' }}>
             提交

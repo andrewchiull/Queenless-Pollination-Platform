@@ -42,9 +42,12 @@ const Home = () => {
       quantity: quantities[product.id] || 0
     }));
     // Handle form submission logic here
-    toast.success(`Order submitted successfully! Name: ${name}, Email: ${email}, Address: ${address}, Order: ${order}`);
+    const orderDetails = products
+      .filter(product => quantities[product.id] > 0)
+      .map(product => `${product.name} x${quantities[product.id]}`)
+      .join(', ');
+    toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`);
     console.log({ name, email, address, order });
-    
   };
 
 return (

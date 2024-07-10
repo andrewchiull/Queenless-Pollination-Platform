@@ -67,7 +67,18 @@ const Home = () => {
       .then(response => {
         console.log(response);
 
-        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`);
+        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`,
+          {
+            position: 'top-center',
+            autoClose: false,
+            closeOnClick: false,
+            closeButton: ({ closeToast }) => (
+              <Button onClick={closeToast} color='info'>
+                確認
+              </Button>
+            )
+          }
+        );
       })
       .catch(error => {
         toast.error("提交訂單時出錯，請稍後再試！");

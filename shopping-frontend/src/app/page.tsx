@@ -16,7 +16,7 @@ const CardContentCustomPadding = styled(CardContent)(`
 type Props = {
   children?: React.ReactNode
 };
-const CustomGridWrapper: React.FC<Props> = ({ children }) => (
+const CardInGrid: React.FC<Props> = ({ children }) => (
   <Grid item sx={{ width: '100%' }}>
     <Card>
       <CardContentCustomPadding>
@@ -32,29 +32,28 @@ const Home = () => {
     <Container style={{ margin: '2rem 0' }}>
       <Grid container spacing={1}>
 
-        <CustomGridWrapper>
+        <CardInGrid>
           <Gallery />
-        </CustomGridWrapper>
+        </CardInGrid>
 
-        <CustomGridWrapper>
-          <Typography variant="h4"
+        <CardInGrid>
+          <Typography variant="h5"
             sx={{
               height: '10vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'white', backgroundColor: 'black'
             }}
           >
-            無蜂王授粉技術
+            無蜂王授粉媒合平台
           </Typography>
-        </CustomGridWrapper>
+        </CardInGrid>
 
-
-        <CustomGridWrapper>
+        <CardInGrid>
           <Button
             sx={{ width: '100%' }}
             variant="contained" color="warning" onClick={() => window.location.href = '/order'}>
             立即下單
           </Button>
-        </CustomGridWrapper>
+        </CardInGrid>
 
       </Grid>
     </Container >

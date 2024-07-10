@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Grid, CircularProgress } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/ReactToastify.min.css';
 import ProductCard from './components/ProductCard';
 import OrderForm from './components/OrderForm';
 
@@ -55,7 +55,7 @@ const Buy = () => {
                 <Grid item key={product.id} xs={12} sm={6}>
                   <ProductCard
                     product={product}
-                    quantity={quantities[product.id]}
+                    quantity={quantities[product.id] || 0}
                     onQuantityChange={handleQuantityChange}
                   />
                 </Grid>

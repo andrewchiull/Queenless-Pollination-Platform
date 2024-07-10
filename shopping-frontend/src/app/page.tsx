@@ -49,11 +49,12 @@ const Home = () => {
                 <Typography variant="h5">{product.name}</Typography>
                 <Typography>{product.description}</Typography>
                 <Typography variant="h6">${product.price}</Typography>
-                <FormControl fullWidth margin="normal">
+                <FormControl fullWidth margin="normal" variant="outlined">
                   <InputLabel>數量</InputLabel>
                   <Select
                     value={quantities[product.id] || 0}
                     onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value as string, 10))}
+                    label="數量"
                   >
                     {Array.from({ length: 11 }, (_, n) => (
                       <MenuItem key={n} value={n}>{n}</MenuItem>

@@ -53,9 +53,12 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
           closeOnClick: false,
           closeButton: ({ closeToast }) => (
             <Button onClick={closeToast}>
-              確認
+              回到首頁
             </Button>
-          )
+          ),
+          onClose: () => {
+            window.location.href = '/';
+          }
         });
       })
       .catch(error => {
@@ -102,7 +105,7 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
             總費用: ${totalExpense.toFixed(2)}
           </Typography>
           <Button type="submit" variant="contained" color="primary" style={{ margin: '1rem 0 0 0', width: '100%' }}>
-            提交
+            送出訂單
           </Button>
         </form>
       </CardContent>

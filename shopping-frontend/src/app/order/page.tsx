@@ -15,7 +15,7 @@ interface Product {
   price: number;
 }
 
-const Buy = () => {
+const Order = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
@@ -76,4 +76,4 @@ const Buy = () => {
   );
 };
 
-export default Buy;
+export default Order;

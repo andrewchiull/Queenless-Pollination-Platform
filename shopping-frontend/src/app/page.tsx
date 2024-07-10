@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Grid, Card, CardContent, Typography, Button, TextField } from '@mui/material';
+import { Container, Grid, Card, CardContent, Typography, Button, TextField, InputLabel, MenuItem, FormControl, Select } from '@mui/material';
 
 interface Product {
   id: number;
@@ -16,6 +16,7 @@ const Home = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
+  const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
     axios.get('/api/products').then(response => {
@@ -25,10 +26,17 @@ const Home = () => {
     });
   }, []);
 
+  const handleQuantityChange = (productId: number, quantity: number) => {
+    setQuantities(prevQuantities => ({
+      ...prevQuantities,
+      [productId]: quantity
+    }));
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // Handle form submission logic here
-    console.log({ name, email, address });
+    console.log({ name, email, address, quantities });
   };
 
   return (
@@ -41,7 +49,17 @@ const Home = () => {
                 <Typography variant="h5">{product.name}</Typography>
                 <Typography>{product.description}</Typography>
                 <Typography variant="h6">${product.price}</Typography>
-                <Button variant="contained" color="primary">購買</Button>
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>數量</InputLabel>
+                  <Select
+                    value={quantities[product.id] || 0}
+                    onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value as string, 10))}
+                  >
+                    {Array.from({ length: 11 }, (_, n) => (
+                      <MenuItem key={n} value={n}>{n}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </CardContent>
             </Card>
           </Grid>

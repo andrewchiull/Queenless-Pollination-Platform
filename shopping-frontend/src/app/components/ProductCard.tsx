@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import Image from "next/image";
+import Image from 'material-ui-image';
 interface Product {
   id: number;
   name: string;
@@ -16,16 +16,12 @@ interface ProductCardProps {
 const ProductCard = ({ product, quantity, onQuantityChange }: ProductCardProps) => (
   <Card>
     <CardContent>
-    <Image
-              src={`/images/products/${product.id}.png`}
-              alt="Vercel Logo"
-              width={100}
-              height={100}
-              priority
-            />
-      <img src={`shopping-frontend/public/next.svg`} alt={product.name} style={{ width: '100px', height: '100px' }} />
+      <Image
+        src={`/images/products/${product.id}.png`}
+        alt={product.name}
+      />
       {/* <img src={`../public/images/products/${product.id}.png`} alt={product.name} style={{ width: '100px', height: '100px' }} /> */}
-      <Typography variant="h5">{product.name}</Typography>
+      <Typography variant="h5" style={{ margin: '1rem 0' }}>{product.name}</Typography>
       <Typography>{product.description}</Typography>
       <Typography variant="h6">${product.price}</Typography>
       <FormControl fullWidth margin="normal" variant="outlined">

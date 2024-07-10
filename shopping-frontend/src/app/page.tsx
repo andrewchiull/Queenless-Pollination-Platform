@@ -13,7 +13,6 @@ interface Product {
   price: number;
 }
 
-// ... existing code ...
 
 const theme = createTheme({
   palette: {
@@ -22,6 +21,15 @@ const theme = createTheme({
 });
 
 const Home = () => {
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const metaTag = document.createElement('meta');
+      metaTag.name = 'color-scheme';
+      metaTag.content = 'light dark';
+      document.head.appendChild(metaTag);
+    }
+  }, []);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -58,18 +66,24 @@ const Home = () => {
     axios.post('/api/orders', { name, email, address, order })
       .then(response => {
         console.log(response);
-        
+
         toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`);
       })
       .catch(error => {
         toast.error("提交訂單時出錯，請稍後再試！");
         console.error("There was an error submitting the order!", error);
       });
+
+    // Clear form fields
+    setName('');
+    setEmail('');
+    setAddress('');
+    setQuantities({});
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Container style={{ backgroundColor: '#ffffff' }}>
+      <Container>
         <Grid container spacing={4}>
           {products.map(product => (
             <Grid item key={product.id} xs={12} sm={6}>
@@ -95,33 +109,40 @@ const Home = () => {
             </Grid>
           ))}
         </Grid>
-        <Container>
-          <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
-            <Typography variant="h4" style={{ color: 'black' }}>購買者資訊</Typography>
-            <TextField
-              label="姓名"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="電子郵件"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="地址"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <Button type="submit" variant="contained" color="primary">提交</Button>
-          </form>
-        </Container>
+
+        <Card style={{ margin: '2rem 0' }}>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <Typography variant="h5">購買者資訊</Typography>
+              <TextField
+                label="姓名"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="電子郵件"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="地址"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <Button type="submit" variant="contained" color="primary"
+                style={{ margin: '1rem 0 0 0', width: '100%' }}
+              >
+                提交
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
         <ToastContainer />
       </Container>
     </ThemeProvider>

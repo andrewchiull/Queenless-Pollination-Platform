@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Grid, Card, CardContent, Typography, Button, TextField, InputLabel, MenuItem, FormControl, Select } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Product {
   id: number;
@@ -35,37 +37,44 @@ const Home = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    const order = products.map(product => ({
+      productId: product.id,
+      quantity: quantities[product.id] || 0
+    }));
     // Handle form submission logic here
-    console.log({ name, email, address, quantities });
+    toast.success(`Order submitted successfully! Name: ${name}, Email: ${email}, Address: ${address}, Order: ${order}`);
+    console.log({ name, email, address, order });
+    
   };
 
-  return (
+return (
+  <Container>
+    <Grid container spacing={4}>
+      {products.map(product => (
+        <Grid item key={product.id} xs={12} sm={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5">{product.name}</Typography>
+              <Typography>{product.description}</Typography>
+              <Typography variant="h6">${product.price}</Typography>
+              <FormControl fullWidth margin="normal" variant="outlined">
+                <InputLabel>數量</InputLabel>
+                <Select
+                  value={quantities[product.id] || 0}
+                  onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value as string, 10))}
+                  label="數量"
+                >
+                  {Array.from({ length: 11 }, (_, n) => (
+                    <MenuItem key={n} value={n}>{n}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
     <Container>
-      <Grid container spacing={4}>
-        {products.map(product => (
-          <Grid item key={product.id} xs={12} sm={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5">{product.name}</Typography>
-                <Typography>{product.description}</Typography>
-                <Typography variant="h6">${product.price}</Typography>
-                <FormControl fullWidth margin="normal" variant="outlined">
-                  <InputLabel>數量</InputLabel>
-                  <Select
-                    value={quantities[product.id] || 0}
-                    onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value as string, 10))}
-                    label="數量"
-                  >
-                    {Array.from({ length: 11 }, (_, n) => (
-                      <MenuItem key={n} value={n}>{n}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
       <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
         <Typography variant="h4">購買者資訊</Typography>
         <TextField
@@ -92,7 +101,9 @@ const Home = () => {
         <Button type="submit" variant="contained" color="primary">提交</Button>
       </form>
     </Container>
-  );
+    <ToastContainer />
+  </Container>
+);
 };
 
 export default Home;

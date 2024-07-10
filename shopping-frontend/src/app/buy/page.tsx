@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Grid } from '@mui/material';
+import { Container, Grid, CircularProgress } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProductCard from './components/ProductCard';
@@ -20,11 +20,15 @@ const Buy = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
 
+  const [loading, setLoading] = useState<boolean>(true); // Add loading state
+
   useEffect(() => {
     axios.get('/api/products').then(response => {
       setProducts(response.data);
+      setLoading(false); // Set loading to false after data is fetched
     }).catch(error => {
       console.error("There was an error fetching the products!", error);
+      setLoading(false); // Set loading to false in case of error
     });
   }, []);
 
@@ -38,15 +42,28 @@ const Buy = () => {
   return (
     <Container style={{ margin: '2rem 0' }}>
       <Grid container spacing={4}>
-        {products.map(product => (
-          <Grid item key={product.id} xs={12} sm={6}>
-            <ProductCard
-              product={product}
-              quantity={quantities[product.id]}
-              onQuantityChange={handleQuantityChange}
-            />
+        {loading ? (
+          <Grid item xs={12}>
+            <Grid container justifyContent="center">
+              <CircularProgress />
+            </Grid>
           </Grid>
-        ))}
+        ) : (
+          <>
+            {
+              products.map(product => (
+                <Grid item key={product.id} xs={12} sm={6}>
+                  <ProductCard
+                    product={product}
+                    quantity={quantities[product.id]}
+                    onQuantityChange={handleQuantityChange}
+                  />
+                </Grid>
+              ))
+            }
+          </>
+        )}
+
       </Grid>
 
       <OrderForm

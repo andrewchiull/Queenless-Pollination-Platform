@@ -49,11 +49,26 @@ const Home = () => {
 
         <CardInGrid>
           <Button
-            sx={{ width: '100%' }}
+            sx={{ width: '100%', fontSize: '1.5rem'}}
             variant="contained" color="warning" onClick={() => window.location.href = '/order'}>
             立即下單
           </Button>
         </CardInGrid>
+
+        <Grid item sx={{ width: '100%' }}>
+          <Card>
+            <CardContent>
+              <Typography variant="body1" gutterBottom>
+                無蜂王蜂箱以蜂王費洛蒙取代蜂巢內的蜂王，可解決瓜果農長期找不到蜜蜂授粉的困境。
+              </Typography>
+
+              <Typography variant="body1">
+                臺灣大學昆蟲系教授楊恩誠研究團隊，完成智慧農業創新，利用費洛蒙讓蜂箱內僅需存有一片巢脾，以取代蜂巢內的蜂王，並將此無蜂王蜂箱應用於溫室內進行授粉的任務。
+              </Typography>
+            </CardContent>
+          </Card >
+        </Grid>
+
 
       </Grid>
     </Container >

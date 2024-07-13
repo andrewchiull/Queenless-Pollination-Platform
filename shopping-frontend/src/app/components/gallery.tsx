@@ -31,7 +31,7 @@ export default function Gallery() {
 
 const itemData = [
   {
-    img: 'https://www.ntu.edu.tw/spotlight/2023/2145_20230329_1.jpg',
+    img: 'https://images.agriharvest.tw/wp-content/uploads/2023/03/S__8986748-1024x768.jpg',
     rows: 2,
     cols: 2,
   },

@@ -78,8 +78,7 @@ map.on('load', async () => {
       'icon-image': 'marker' // ???? Use icons in [Maki Icons | By Mapbox](https://labs.mapbox.com/maki-icons/)
     }
   });
-  // Listen for a click on the map
-  await map.on('click', addWaypoints);
+
 
   map.addSource('route', {
     type: 'geojson',
@@ -102,6 +101,9 @@ map.on('load', async () => {
     },
     'waterway-label'
   );
+
+  // Listen for a click on the map
+  await map.on('click', addWaypoints);
 });
 
 async function addWaypoints(event) {
@@ -146,22 +148,24 @@ async function newDropoff(coordinates) {
   map.getSource('route').setData(routeGeoJSON);
 }
 
-
 function updateDropoffs(geojson) {
   map.getSource('dropoffs-symbol').setData(geojson);
 }
 
 // Here you'll specify all the parameters necessary for requesting a response from the Optimization API
 function assembleQueryURL() {
-  // Store the location of the truck in a constant called coordinates
+  // Store the location of the truck in a variable called coordinates
   const coordinates = [truckLocation];
   const distributions = [];
+  let restaurantIndex;
   keepTrack = [truckLocation];
 
   // Create an array of GeoJSON feature collections for each point
-  const restJobs = Object.keys(pointHopper).map((key) => pointHopper[key]);
+  const restJobs = Object.keys(pointHopper).map(
+    (key) => pointHopper[key]
+  );
 
-  // If there are any orders from this restaurant
+  // If there are actually orders from this restaurant
   if (restJobs.length > 0) {
     // Check to see if the request was made after visiting the restaurant
     const needToPickUp =
@@ -172,7 +176,7 @@ function assembleQueryURL() {
     // If the request was made after picking up from the restaurant,
     // Add the restaurant as an additional stop
     if (needToPickUp) {
-      const restaurantIndex = coordinates.length;
+      restaurantIndex = coordinates.length;
       // Add the restaurant as a coordinate
       coordinates.push(warehouseLocation);
       // push the restaurant itself into the array
@@ -185,7 +189,9 @@ function assembleQueryURL() {
       coordinates.push(job.geometry.coordinates);
       // if order not yet picked up, add a reroute
       if (needToPickUp && job.properties.orderTime > lastAtRestaurant) {
-        distributions.push(`${restaurantIndex},${coordinates.length - 1}`);
+        distributions.push(
+          `${restaurantIndex},${coordinates.length - 1}`
+        );
       }
     }
   }

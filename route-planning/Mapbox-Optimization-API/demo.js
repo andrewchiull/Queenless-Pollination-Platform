@@ -72,10 +72,13 @@ map.on('load', async () => {
       type: 'geojson'
     },
     layout: {
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
-      'icon-size': 3,
-      'icon-image': 'marker' // ???? Use icons in [Maki Icons | By Mapbox](https://labs.mapbox.com/maki-icons/)
+      'text-field': '◉',
+      'text-size': ['interpolate', ['linear'], ['zoom'], 12, 24, 22, 60],
+    },
+    paint: {
+      'text-color': '#be3887',
+      'text-halo-color': 'hsl(55, 11%, 96%)',
+      'text-halo-width': 3
     }
   });
 
@@ -104,6 +107,27 @@ map.on('load', async () => {
 
   // Listen for a click on the map
   await map.on('click', addWaypoints);
+
+  map.addLayer(
+    {
+      id: 'routearrows',
+      type: 'symbol',
+      source: 'route',
+      layout: {
+        'symbol-placement': 'line',
+        'text-field': '▶',
+        'text-size': ['interpolate', ['linear'], ['zoom'], 12, 24, 22, 60],
+        'symbol-spacing': ['interpolate', ['linear'], ['zoom'], 12, 30, 22, 160],
+        'text-keep-upright': false
+      },
+      paint: {
+        'text-color': '#3887be',
+        'text-halo-color': 'hsl(55, 11%, 96%)',
+        'text-halo-width': 3
+      }
+    },
+    'waterway-label'
+  );
 });
 
 async function addWaypoints(event) {
@@ -202,7 +226,6 @@ function assembleQueryURL() {
     ';'
   )}?distributions=${distributions.join(
     ';'
-  )}&overview=full&steps=true&geometries=geojson&source=first&access_token=${
-    mapboxgl.accessToken
-  }`;
+  )}&overview=full&steps=true&geometries=geojson&source=first&access_token=${mapboxgl.accessToken
+    }`;
 }

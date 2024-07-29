@@ -23,10 +23,10 @@ const dropoffs = turf.featureCollection([]);
 // Create an empty GeoJSON feature collection, which will be used as the data source for the route before users add any new data
 const nothing = turf.featureCollection([]);
 
-const routeColor = '#f2b21d';
+const yellow = '#f2b21d';
+const red = '#be3887';
+const blue = '#3887be';
 
-const dropoffsColor = '#be3887';
-const warehouseColor = '#3887be';
 map.on('load', async () => {
   const marker = document.createElement('div');
   marker.classList = 'truck';
@@ -45,7 +45,7 @@ map.on('load', async () => {
     paint: {
       'circle-radius': 20,
       'circle-color': 'white',
-      'circle-stroke-color': warehouseColor,
+      'circle-stroke-color': red,
       'circle-stroke-width': 5
     }
   });
@@ -63,7 +63,7 @@ map.on('load', async () => {
       'icon-size': 1.5
     },
     paint: {
-      'text-color': warehouseColor
+      'text-color': blue
     }
   });
 
@@ -78,7 +78,7 @@ map.on('load', async () => {
     paint: {
       'circle-radius': 5,
       'circle-color': 'white',
-      'circle-stroke-color': dropoffsColor,
+      'circle-stroke-color': red,
       'circle-stroke-width': 5
     }
   });
@@ -99,7 +99,7 @@ map.on('load', async () => {
         'line-cap': 'round'
       },
       paint: {
-        'line-color': routeColor,
+        'line-color': blue,
         'line-width': ['interpolate', ['linear'], ['zoom'], 12, 3, 22, 12]
       }
     },
@@ -122,7 +122,7 @@ map.on('load', async () => {
         'text-keep-upright': false
       },
       paint: {
-        'text-color': warehouseColor,
+        'text-color': red,
         'text-halo-color': 'hsl(55, 11%, 96%)',
         'text-halo-width': 3
       }

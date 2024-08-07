@@ -1,5 +1,5 @@
-const truckLocation = [-83.093, 42.376];
-const warehouseLocation = [-83.083, 42.363];
+const truckLocation = [121.542, 25.018]; // NTU BiME Building
+const warehouseLocation = [121.564, 25.033]; // Taipei 101
 const lastAtRestaurant = 0;
 let keepTrack = [];
 const pointHopper = {};

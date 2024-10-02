@@ -9,26 +9,35 @@ services:
       - mysql-queenless-data:/var/lib/mysql
     ports:
       - "3306:3306"
-    # networks:
-    #   - queenless-pollination-platform
+    networks:
+      - queenless-pollination-platform
 
-  # shopping-backend:
-  #   build: ./shopping/backend
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DB_HOST: db
-  #     DB_USER: root
-  #     DB_PASSWORD: ${ROOT_PASSWORD}
-  #     DB_NAME: ${DATABASE}
-  #   networks:
-  #     - queenless-pollination-platform
+  shopping-backend:
+    build: ./shopping/backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: ${ROOT_PASSWORD}
+      DB_NAME: ${DATABASE}
+    networks:
+      - queenless-pollination-platform
+
+  shopping-frontend:
+    build: ./shopping/frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - shopping-backend
+    networks:
+      - queenless-pollination-platform
 
 volumes:
   mysql-queenless-data:
 
-# networks:
-#   queenless-pollination-platform:
-#     driver: bridge
+networks:
+  queenless-pollination-platform:
+    driver: bridge

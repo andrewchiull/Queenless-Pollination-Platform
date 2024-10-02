@@ -4,8 +4,11 @@ const lastAtRestaurant = 0;
 let keepTrack = [];
 const pointHopper = {};
 
-// Add your access token
-mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmV3Y2hpdWxsIiwiYSI6ImNsejU4dHZ3cjN1eWgya3M2YjVzMWVlYjgifQ.crnPw_K3dclSRgskM3JWuQ';
+// Load environment variables from .env file
+require('dotenv').config();
+
+// Add your access token from the environment variable
+mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN;
 
 // Initialize a map
 const map = new mapboxgl.Map({

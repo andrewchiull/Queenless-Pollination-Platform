@@ -17,36 +17,20 @@
 
 ## Docker
 
-### Get started
-
-See [Get Docker Desktop | Docker Docs](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
-
-### Run hello-world
-
-```bash
-# run the hello-world container
-docker run -d -p 8080:80 docker/welcome-to-docker
-
-# open in browser to see the result
-open http://localhost:8080/
-```
-
-## Database: MySQL
-
 ### Install MySQL 8.4.2
 See:
 1. [建置多容器應用程式（MySQL、Docker Compose） | Microsoft Learn](https://learn.microsoft.com/zh-tw/visualstudio/docker/tutorials/tutorial-multi-container-app-mysql#prerequisites)
 2. [mysql - Official Image | Docker Hub](https://hub.docker.com/_/mysql)
 
 Cautions:
-- In the command line, use your own password instead of `tmp-password`.
-- If you don't need to expose port 3306 to host, remove `-p 3306:3306` from the command.
+- In the command line, **USE YOUR OWN PASSWORD** instead of `tmp-password`.
+- If you don't need to expose port 3306 to host, remove `-p 3306:3306` from the `docker run` command.
 
 ```bash
-# create a network
+# Create a network
 docker network create queenless-pollination-platform
 
-# run the MySQL container
+# Run the MySQL container
 docker run -d \
   --name mysql-queenless \
   --network queenless-pollination-platform --network-alias mysql \
@@ -62,13 +46,15 @@ docker run -d \
 ```bash
 # Connect to the MySQL container and use mysql CLI.
 docker exec -it mysql-queenless mysql -u root -p
+```
 
-# In the mysql CLI, show databases.
+To check if the connection is successful, type `SHOW DATABASES;` in the mysql CLI.
+```sql
 SHOW DATABASES;
 ```
 
 You should see the `queenless-pollination-platform` in the database list, like this:
-```
+```text
 mysql> SHOW DATABASES;
 +--------------------------------+
 | Database                       |
@@ -84,7 +70,7 @@ mysql> SHOW DATABASES;
 
 If needed, type `exit` to exit the mysql CLI.
 
-### Select database and create tables
+### Create tables
 
 ```sql
 -- Select database
@@ -110,4 +96,9 @@ CREATE TABLE orders (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
+
+-- Add initial products
+INSERT INTO products (name, price, description) VALUES
+('小蜂箱', 799.00, '適合小型溫室的蜂箱。'),
+('大蜂箱', 1599.00, '適合大型溫室的蜂箱。');
 ```

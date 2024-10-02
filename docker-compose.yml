@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  db:
+    build: ./db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE}
+    volumes:
+      - mysql-queenless-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    # networks:
+    #   - queenless-pollination-platform
+
+  # shopping-backend:
+  #   build: ./shopping/backend
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DB_HOST: db
+  #     DB_USER: root
+  #     DB_PASSWORD: ${ROOT_PASSWORD}
+  #     DB_NAME: ${DATABASE}
+  #   networks:
+  #     - queenless-pollination-platform
+
+volumes:
+  mysql-queenless-data:
+
+# networks:
+#   queenless-pollination-platform:
+#     driver: bridge

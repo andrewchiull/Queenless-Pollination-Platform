@@ -1,46 +1,24 @@
 # Queenless-Pollination-Platform
 
-## Todos
+### Prerequisites
+- Docker
+- Docker Compose
 
-- route-planning
-    - [ ] Add OR-tools
-    - [ ] Compare:
-        - [ ] Google Maps API: Route Optimization
-        - [ ] OR-tools + Google Maps API: Distance Matrix
-        - [ ] Mapbox API: Route Optimization
-        - [ ] OR-tools + Mapbox API: Distance Matrix
-    - [ ] Frontend
-        - [ ] Next.js
-        - [ ] how to access from shopping
-- [ ] Containerization
-    - [ ] docker-compose
+## Database and Application Setup
 
+- In `docker-compose.yml`, if you don't need to expose port 3306 to host, remove `ports: - "3306:3306"`
+- In `.env`, **USE YOUR OWN PASSWORD** instead of `tmp-password`.
 
-## Build a new MySQL image by Dockerfile
-
-**Cautions:**
-- In `init.sql`, **USE YOUR OWN PASSWORD** instead of `tmp-password`.
-- In `Dockerfile`, if you don't need to expose port 3306 to host, remove `EXPOSE 3306`.
+    ```bash
+    # In .env
+    MYSQL_DATABASE=queenless-pollination-platform
+    MYSQL_ROOT_PASSWORD=**your_own_password**
+    ```
 
 
+Start the services:
 ```bash
-# Go to the db directory
-cd db
-
-# Create a network
-docker network create queenless-pollination-platform
-
-# Build the image from Dockerfile
-docker build -t queenless-pollination-mysql .
-
-# Run the container
-docker run -d \
-  --name mysql-queenless \
-  --network queenless-pollination-platform \
-  --network-alias mysql \
-  -v mysql-queenless-data:/var/lib/mysql \
-  -p 3306:3306 \
-  queenless-pollination-mysql
+docker-compose up -d
 ```
 
 ### Test connection to MySQL
@@ -49,7 +27,7 @@ To check if the connection is successful:
 
 ```bash
 # Connect to the MySQL container and use mysql CLI.
-docker exec -it mysql-queenless mysql -u root -p
+docker-compose exec db mysql -u root -p
 ```
 
 ```sql
@@ -73,3 +51,45 @@ mysql> SHOW DATABASES;
 ```
 
 If needed, type `exit` to exit the mysql CLI.
+
+
+## Todos
+
+- route-planning
+    - [ ] Add OR-tools
+    - [ ] Compare:
+        - [ ] Google Maps API: Route Optimization
+        - [ ] OR-tools + Google Maps API: Distance Matrix
+        - [ ] Mapbox API: Route Optimization
+        - [ ] OR-tools + Mapbox API: Distance Matrix
+    - [ ] Frontend
+        - [ ] Next.js
+        - [ ] how to access from shopping
+- [ ] Containerization
+    - [ ] docker-compose
+
+
+# Queenless-Pollination-Platform
+
+
+### API Development
+
+The backend API is located in `shopping/backend/src/routes.ts`. Key endpoints:
+- GET `/products`: Fetches all products
+- POST `/orders`: Submits a new order
+
+### Frontend Development
+
+The frontend order form is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
+
+### Stopping the Application
+
+To stop the application and remove the containers:
+```bash
+docker-compose down
+```
+
+To stop the application and remove the containers, networks, and volumes:
+```bash
+docker-compose down -v
+```

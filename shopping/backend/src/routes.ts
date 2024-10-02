@@ -1,25 +1,39 @@
 import { Router } from 'express';
+import { promises as fs } from 'fs';
+import path from 'path';
 import pool from './db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 const router = Router();
 
-router.get('/products', async (req, res) => {
-  const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM products');
-  res.json(rows);
-});
+// Function to read local JSON file
+async function readLocalProducts(): Promise<any[]> {
+  const filePath = path.join(__dirname, '../data/products.json');
+  const data = await fs.readFile(filePath, 'utf8');
+  return JSON.parse(data);
+}
 
-router.post('/buyers', async (req, res) => {
-  const { name, email, address } = req.body;
-  const [result] = await pool.query<ResultSetHeader>('INSERT INTO buyers (name, email, address) VALUES (?, ?, ?)', [name, email, address]);
-  res.json({ id: result.insertId });
+// If the database is not ready, read the local products file
+router.get('/products', async (req, res) => {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>('SELECT id, name, price, description, created_at FROM products');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching products from database. Please check the database connection.\n', error);
+    try {
+      console.log('Reading local products file instead...');
+      const localProducts = await readLocalProducts();
+      res.json(localProducts);
+    } catch (localError) {
+      console.error('Error reading local products file.\n', localError);
+      res.status(500).json({ message: 'Error fetching products' });
+    }
+  }
 });
 
 router.post('/orders', async (req, res) => {
   const { name, email, address, order } = req.body;
-
   try {
-
     // Insert order information
     for (const item of order) {
       await pool.query<ResultSetHeader>(
@@ -31,7 +45,7 @@ router.post('/orders', async (req, res) => {
     res.json({ message: `訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${order}` });
     
   } catch (error) {
-    console.error('Error submitting order:', error);
+    console.error('Error submitting order. Please check the database connection.\n', error);
     res.status(500).json({ message: 'Error submitting order' });
   }
 });

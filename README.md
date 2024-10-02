@@ -2,9 +2,6 @@
 
 ## Todos
 
-- shopping
-    - [ ] Install dependencies
-    - [x] Install MySQL
 - route-planning
     - [ ] Add OR-tools
     - [ ] Compare:
@@ -17,11 +14,6 @@
         - [ ] how to access from shopping
 - [ ] Containerization
     - [ ] docker-compose
-
-## address-to-latlon
-[運輸資料流通服務平臺(Transport Data eXchange , TDX) | TDX 運輸資料流通服務](https://tdx.transportdata.tw/)
-[2024 [地址轉換經緯度]TDX地址轉經緯度小工具(期間限定)](https://www.spatialgeolab.com/address-to-latlon-part3/)
-[地理編碼服務  |  Maps JavaScript API  |  Google for Developers](https://developers.google.com/maps/documentation/javascript/geocoding?hl=zh-tw)
 
 ## Docker
 
@@ -104,15 +96,6 @@ CREATE TABLE products (
     name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     price DECIMAL(10, 2) NOT NULL,
     description TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create buyers table
-CREATE TABLE buyers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    address TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

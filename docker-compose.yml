@@ -35,6 +35,14 @@ services:
     networks:
       - queenless-pollination-platform
 
+  route-planning-backend:
+    build: ./route-planning/backend
+    ports:
+      - "6000:6000"
+    depends_on:
+      - db
+    networks:
+      - queenless-pollination-platform
 volumes:
   mysql-queenless-data:
 

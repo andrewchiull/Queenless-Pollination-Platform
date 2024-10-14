@@ -5,7 +5,7 @@ services:
       context: ./db
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE}
+      MYSQL_DATABASE: queenless-pollination-platform
     volumes:
       - mysql-queenless-data:/var/lib/mysql
     ports:
@@ -24,7 +24,7 @@ services:
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: ${ROOT_PASSWORD}
-      DB_NAME: ${DATABASE}
+      DB_NAME: queenless-pollination-platform
     networks:
       - queenless-pollination-platform
 

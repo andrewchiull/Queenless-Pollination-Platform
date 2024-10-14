@@ -14,6 +14,11 @@ app.use('/api', routes);
 
 const PORT = process.env.PORT || 5000;
 
+// root: welcome message
+app.get('/', (req, res) => {
+  res.send('Welcome to the shopping-backend. To use shopping-frontend GUI, go to http://localhost:3000');
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

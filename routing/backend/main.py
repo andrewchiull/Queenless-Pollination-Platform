@@ -15,7 +15,7 @@ class Item(BaseModel):
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "This is routing-backend. To use GUI, go to http://localhost:5001/docs"}
 
 
 @app.get("/items/{item_id}")

@@ -6,9 +6,9 @@
 2. shopping-backend: `localhost:5000`
 3. routing-backend: `localhost:5001`
 
-## Setup
+## Deployment
 
-### 1. Setup `.env` file.
+### 1. Setup `.env` file for MySQL password.
 
 You can copy `.env.example` to `.env` and modify it, but **USE YOUR OWN PASSWORD** instead of `tmp-password`.
 
@@ -17,6 +17,8 @@ You can copy `.env.example` to `.env` and modify it, but **USE YOUR OWN PASSWORD
 # Password for MySQL root user
 MYSQL_ROOT_PASSWORD=your_own_password
 ```
+
+**Or use safer methods like `docker secret` to manage secrets.**
 
 ### 2. Start the services:
 
@@ -53,31 +55,20 @@ To rebuild a certain service without restarting other services:
 docker compose up -d --no-deps --build <service_name>
 ```
 
-## Todos
-
-- route-planning
-    - [ ] Add OR-tools
-    - [ ] Compare:
-        - [ ] Google Maps API: Route Optimization
-        - [ ] OR-tools + Google Maps API: Distance Matrix
-        - [ ] Mapbox API: Route Optimization
-        - [ ] OR-tools + Mapbox API: Distance Matrix
-    - [ ] Frontend
-        - [ ] Next.js
-        - [ ] how to access from shopping
-- [ ] Containerization
-    - [ ] docker-compose
+## Development
 
 
-# Queenless-Pollination-Platform
+### 1. shopping-frontend: Frontend for user
+
+The most important part `OrderForm` is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
+
+### 2. shopping-backend: APIs for orders
+
+The backend API is located in `shopping/backend/src/routes.ts`.
+- GET `/products`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `shopping/backend/data/products.json` instead.)
+- POST `/orders`: Submits a new order.
 
 
-### API Development
+### 3. routing-backend: Routing
 
-The backend API is located in `shopping/backend/src/routes.ts`. Key endpoints:
-- GET `/products`: Fetches all products
-- POST `/orders`: Submits a new order
-
-### Frontend Development
-
-The frontend order form is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
+The routing backend is located in `shopping/routing/backend/src/main.py`.

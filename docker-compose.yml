@@ -40,15 +40,15 @@ services:
     networks:
       - queenless-pollination-platform
 
-  # routing-backend:
-  #   build:
-  #     context: ./routing/backend
-  #   ports:
-  #     - "6000:6000"
-  #   depends_on:
-  #     - db
-  #   networks:
-  #     - queenless-pollination-platform
+  routing-backend:
+    build:
+      context: ./routing/backend
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    networks:
+      - queenless-pollination-platform
 
 volumes:
   mysql-queenless-data:

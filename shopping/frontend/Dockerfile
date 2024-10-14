@@ -5,7 +5,7 @@ FROM node:20
 WORKDIR /app
 
 # Copy the package.json and package-lock.json files
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 
 # Install dependencies
 RUN yarn install
@@ -13,5 +13,11 @@ RUN yarn install
 # Copy the rest of the application code
 COPY . .
 
+ARG API_URL
+ENV API_URL=${API_URL}
+
+# Build the application
+RUN yarn build
+
 # Start the application
-CMD ["yarn", "dev"]
+CMD ["yarn", "start"]

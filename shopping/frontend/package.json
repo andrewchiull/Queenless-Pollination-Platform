@@ -16,6 +16,7 @@
     "@material/circular-progress": "^14.0.0",
     "@mui/material": "^5.16.0",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "material-ui-image": "^3.3.2",
     "next": "14.2.4",
     "react": "^18",

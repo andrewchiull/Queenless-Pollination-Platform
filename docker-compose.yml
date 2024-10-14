@@ -1,7 +1,8 @@
 version: '3.8'
 services:
   db:
-    build: ./db
+    build:
+      context: ./db
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
       MYSQL_DATABASE: ${DATABASE}
@@ -13,7 +14,8 @@ services:
       - queenless-pollination-platform
 
   shopping-backend:
-    build: ./shopping/backend
+    build: 
+      context: ./shopping/backend
     ports:
       - "5000:5000"
     depends_on:
@@ -27,7 +29,10 @@ services:
       - queenless-pollination-platform
 
   shopping-frontend:
-    build: ./shopping/frontend
+    build:
+      context: ./shopping/frontend
+      args:
+        - API_URL=http://shopping-backend:5000/api/:path*
     ports:
       - "3000:3000"
     depends_on:
@@ -36,7 +41,8 @@ services:
       - queenless-pollination-platform
 
   routing-backend:
-    build: ./routing/backend
+    build:
+      context: ./routing/backend
     ports:
       - "6000:6000"
     depends_on:

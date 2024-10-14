@@ -1,57 +1,57 @@
 # Queenless-Pollination-Platform
 
-### Prerequisites
-- Docker
-- Docker Compose
+## Services
 
-## Database and Application Setup
+1. shopping-frontend: `localhost:3000`
+2. shopping-backend: `localhost:5000`
+3. routing-backend: `localhost:5001`
 
-- In `docker-compose.yml`, if you don't need to expose port 3306 to host, remove `ports: - "3306:3306"`
-- In `.env`, **USE YOUR OWN PASSWORD** instead of `tmp-password`.
+## Setup
 
-    ```bash
-    # In .env
-    MYSQL_DATABASE=queenless-pollination-platform
-    MYSQL_ROOT_PASSWORD=**your_own_password**
-    ```
+### 1. Setup `.env` file.
 
-
-Start the services:
-```bash
-docker-compose up -d
-```
-
-### Test connection to MySQL
-
-To check if the connection is successful:
+You can copy `.env.example` to `.env` and modify it, but **USE YOUR OWN PASSWORD** instead of `tmp-password`.
 
 ```bash
-# Connect to the MySQL container and use mysql CLI.
-docker-compose exec db mysql -u root -p
+# In .env
+# Password for MySQL root user
+MYSQL_ROOT_PASSWORD=your_own_password
 ```
 
-```sql
--- In the mysql CLI
-SHOW DATABASES;
+### 2. Start the services:
+
+```bash
+docker compose up -d
 ```
 
-You should see the `queenless-pollination-platform` in the database list, like this:
-```text
-mysql> SHOW DATABASES;
-+--------------------------------+
-| Database                       |
-+--------------------------------+
-| information_schema             |
-| mysql                          |
-| performance_schema             |
-| queenless-pollination-platform |
-| sys                            |
-+--------------------------------+
-5 rows in set (0.00 sec)
+### 3. Stop the services
+
+To stop the application temporarily:
+```bash
+docker compose stop
 ```
 
-If needed, type `exit` to exit the mysql CLI.
+To start again:
+```bash
+docker compose start
+```
 
+To stop and remove all the containers, networks, and volumes:
+```bash
+docker compose down -v
+```
+
+### 4. If you modified the source code of a service:
+
+To rebuild the whole application:
+```bash
+docker compose up -d --build
+```
+
+To rebuild a certain service without restarting other services:
+```bash
+docker compose up -d --no-deps --build <service_name>
+```
 
 ## Todos
 
@@ -81,15 +81,3 @@ The backend API is located in `shopping/backend/src/routes.ts`. Key endpoints:
 ### Frontend Development
 
 The frontend order form is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
-
-### Stopping the Application
-
-To stop the application and remove the containers:
-```bash
-docker-compose down
-```
-
-To stop the application and remove the containers, networks, and volumes:
-```bash
-docker-compose down -v
-```

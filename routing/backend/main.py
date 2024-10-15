@@ -1,8 +1,12 @@
 from enum import Enum
 from typing import Union
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
+
+from mysql.connector import cursor
+from db import get_db
 
 app = FastAPI()
 
@@ -15,7 +19,21 @@ class Item(BaseModel):
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "This is routing-backend. To use GUI, go to http://localhost:5001/docs"}
+    # Redirect to /docs
+    print("Hello! This is routing-backend. To use GUI, go to http://localhost:5001/docs")
+    print("Redirecting to /docs")
+    return RedirectResponse(url="/docs")
+
+@app.get("/db")
+async def read_db(db: cursor.MySQLCursor = Depends(get_db)):
+
+    query = "SHOW DATABASES"
+    db.execute(query)
+    result = db.fetchall()
+    if result:
+        return {"databases": result}
+    else:
+        return {"error": "Database not found"}
 
 
 @app.get("/items/{item_id}")

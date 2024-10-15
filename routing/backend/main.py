@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from typing import Union
 
@@ -11,8 +12,8 @@ from db import get_db
 
 app = FastAPI()
 
-# Shopping-backend URL
-SHOPPING_BACKEND_URL = "http://localhost:5000"  # Adjust this if needed
+# API_URL of shopping-backend
+API_URL = os.getenv("API_URL") or "http://localhost:5000/api/"
 
 class Item(BaseModel):
     name: str
@@ -102,11 +103,13 @@ async def read_user_item(
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
 
+
+# Access database via shopping-backend
 @app.get("/shopping-backend/products")
-async def get_shopping_backend_products():
+async def get_products_from_shopping_backend():
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(f"{SHOPPING_BACKEND_URL}/api/products")
+            response = await client.get(f"{API_URL}/products")
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:

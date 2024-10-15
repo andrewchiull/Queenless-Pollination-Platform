@@ -32,7 +32,7 @@ services:
     build:
       context: ./shopping/frontend
       args:
-        - API_URL=http://shopping-backend:5000/api/:path*
+        - API_URL=http://shopping-backend:5000/api/
     ports:
       - "3000:3000"
     depends_on:
@@ -43,6 +43,8 @@ services:
   routing-backend:
     build:
       context: ./routing/backend
+      args:
+        - API_URL=http://shopping-backend:5000/api/
     ports:
       - "5001:5001"
     depends_on:

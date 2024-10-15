@@ -4,10 +4,13 @@ import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default function MapPage() {
   // Mapbox Access Token
-  mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmV3Y2hpdWxsIiwiYSI6ImNsejU4dHZ3cjN1eWgya3M2YjVzMWVlYjgifQ.crnPw_K3dclSRgskM3JWuQ';
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'USE YOUR OWN TOKEN';
 
   // Color variables
   const yellow = '#f2b21d';
@@ -25,6 +28,15 @@ export default function MapPage() {
   const pointHopper: { [key: string]: any } = {};
   const lastAtRestaurant = 0;
   let keepTrack: any[] = [];
+
+  // Initial dropoff locations
+  const initialDropoffs: [number, number][] = [
+    [121.537, 25.019], // 國立臺灣大學
+    [121.748, 24.747], // 國立宜蘭大學
+    [120.674, 24.125], // 國立中興大學
+    [120.426, 23.480], // 國立嘉義大學
+    [120.597, 22.656], // 國立屏東科技大學
+  ];
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -163,6 +175,12 @@ export default function MapPage() {
         },
         'waterway-label'
       );
+
+      // Add initial dropoffs
+      initialDropoffs.forEach(async (location) => {
+        await addWaypoint(new mapboxgl.LngLat(location[0], location[1]));
+        updateDropoffs(dropoffs);
+      });
 
       // Add click event listener
       map.current!.on('click', async (e) => {

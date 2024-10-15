@@ -37,6 +37,8 @@ services:
       - "3000:3000"
     depends_on:
       - shopping-backend
+    environment:
+      MAPBOX_ACCESS_TOKEN: ${MAPBOX_ACCESS_TOKEN}
     networks:
       - queenless_pollination_platform
 

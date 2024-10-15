@@ -1,6 +1,9 @@
 -- Set character encoding
 SET NAMES 'utf8mb4';
 
+-- Create database
+CREATE DATABASE IF NOT EXISTS `queenless_pollination_platform`;
+
 -- Select database
 USE `queenless_pollination_platform`;
 

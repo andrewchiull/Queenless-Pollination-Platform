@@ -9,13 +9,18 @@ export default function MapPage() {
   // Mapbox Access Token
   mapboxgl.accessToken = 'pk.eyJ1IjoiYW5kcmV3Y2hpdWxsIiwiYSI6ImNsejU4dHZ3cjN1eWgya3M2YjVzMWVlYjgifQ.crnPw_K3dclSRgskM3JWuQ';
 
+  // Color variables
+  const yellow = '#f2b21d';
+  const red = '#be3887';
+  const blue = '#3887be';
+
   // Refs for the map and container
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
   // Locations and state
-  const truckLocation: [number, number] = [-83.093, 42.376];
-  const warehouseLocation: [number, number] = [-83.083, 42.363];
+  const truckLocation: [number, number] = [121.542, 25.018]; // NTU BiME Building
+  const warehouseLocation: [number, number] = [121.564, 25.033]; // Taipei 101
   const dropoffs = turf.featureCollection([]);
   const pointHopper: { [key: string]: any } = {};
   const lastAtRestaurant = 0;
@@ -37,14 +42,10 @@ export default function MapPage() {
       // Add truck marker
       const truckMarker = document.createElement('div');
       truckMarker.className = 'truck';
-      new mapboxgl.Marker(truckMarker)
-        .setLngLat(truckLocation)
-        .addTo(map.current!);
+      new mapboxgl.Marker(truckMarker).setLngLat(truckLocation).addTo(map.current!);
 
       // Add warehouse layer
-      const warehouse = turf.featureCollection([
-        turf.point(warehouseLocation),
-      ]);
+      const warehouse = turf.featureCollection([turf.point(warehouseLocation)]);
 
       map.current!.addLayer({
         id: 'warehouse',
@@ -56,8 +57,37 @@ export default function MapPage() {
         paint: {
           'circle-radius': 20,
           'circle-color': 'white',
-          'circle-stroke-color': '#3887be',
-          'circle-stroke-width': 3,
+          'circle-stroke-color': red,
+          'circle-stroke-width': 5,
+        },
+      });
+
+      map.current!.addLayer({
+        id: 'warehouse-symbol',
+        type: 'symbol',
+        source: {
+          type: 'geojson',
+          data: warehouse,
+        },
+        layout: {
+          'icon-image': 'grocery',
+          'icon-size': 1.5,
+        },
+      });
+
+      // Add dropoffs layer
+      map.current!.addLayer({
+        id: 'dropoffs-symbol',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: dropoffs,
+        },
+        paint: {
+          'circle-radius': 5,
+          'circle-color': 'white',
+          'circle-stroke-color': red,
+          'circle-stroke-width': 5,
         },
       });
 
@@ -89,7 +119,7 @@ export default function MapPage() {
         },
       });
 
-      // Add route source and layer
+      // Add route source and layers
       const nothing = turf.featureCollection([]);
       map.current!.addSource('route', {
         type: 'geojson',
@@ -106,7 +136,7 @@ export default function MapPage() {
             'line-cap': 'round',
           },
           paint: {
-            'line-color': '#3887be',
+            'line-color': blue,
             'line-width': ['interpolate', ['linear'], ['zoom'], 12, 3, 22, 12],
           },
         },
@@ -126,7 +156,7 @@ export default function MapPage() {
             'text-keep-upright': false,
           },
           paint: {
-            'text-color': '#3887be',
+            'text-color': red,
             'text-halo-color': 'hsl(55, 11%, 96%)',
             'text-halo-width': 3,
           },
@@ -224,7 +254,7 @@ export default function MapPage() {
           height: 20px;
           border: 2px solid #fff;
           border-radius: 50%;
-          background: #3887be;
+          background: ${blue};
           pointer-events: none;
         }
       `}</style>

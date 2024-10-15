@@ -1,6 +1,7 @@
 import os
 from enum import Enum
-from typing import Union
+from typing import Union, List
+from datetime import datetime
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import RedirectResponse
@@ -9,6 +10,7 @@ import httpx
 
 from mysql.connector import cursor
 from db import get_db
+from models import Order
 
 app = FastAPI()
 
@@ -116,3 +118,26 @@ async def get_products_from_shopping_backend():
             raise HTTPException(status_code=e.response.status_code, detail=str(e))
         except httpx.RequestError as e:
             raise HTTPException(status_code=500, detail=f"Error communicating with shopping-backend: {str(e)}")
+
+@app.get("/orders/", response_model=List[Order])
+async def get_orders(db: cursor.MySQLCursor = Depends(get_db)):
+    query = "SELECT * FROM orders"
+    
+    try:
+        db.execute(query)
+        orders = db.fetchall()
+        
+        return [
+            Order(
+                id=order[0],
+                name=order[1],
+                email=order[2],
+                address=order[3],
+                product_id=order[4],
+                quantity=order[5],
+                created_at=order[6]
+            )
+            for order in orders
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching orders: {str(e)}")

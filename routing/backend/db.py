@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
-import mysql.connector
-from mysql.connector import cursor
+
+from sqlmodel import Session, create_engine
+from sqlalchemy import text
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST")
@@ -9,38 +10,24 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 
-# Ref: https://juejin.cn/post/7223373957087936549
+# mysql+pymysql://<username>:<password>@<host>/<dbname>[?<options>]
+DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
-def get_db_connection():
-    connection = mysql.connector.connect(
-        host=DB_HOST,
-        port=3306,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
-    return connection
+engine = create_engine(DB_URL)
 
-def get_db():
-    connection = get_db_connection()
-    db = connection.cursor()
+def get_session():
+    with Session(engine) as session:
+        yield session
 
-    try:
-        yield db
-    finally:
-        db.close()
-        connection.close()
-
-def fetch_databases():
-    db: cursor.MySQLCursor = get_db()
-    query = "SHOW DATABASES"
-    db.execute(query)
-    result = db.fetchall()
-    if result:
-        return {"databases": result}
+def fetch_products():
+    session = get_session()
+    statement = text("SELECT * FROM `queenless-pollination-platform`.products;")
+    results = session.exec(statement)
+    if results:
+        return {"products": results.all()}
     else:
         return {"error": "Database not found"}
 
-
 if __name__ == "__main__":
-    print(fetch_databases())
+    print("Testing: fetch_products()")
+    print(fetch_products())

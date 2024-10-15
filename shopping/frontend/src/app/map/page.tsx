@@ -216,14 +216,25 @@ export default function MapPage() {
       const routeGeoJSON = turf.featureCollection([
         turf.feature(json.trips[0].geometry),
       ]);
-      map.current!.getSource('route')!.setData(routeGeoJSON);
+      
+      const routeSource = map.current!.getSource('route');
+      if (routeSource && 'setData' in routeSource) {
+        (routeSource as mapboxgl.GeoJSONSource).setData(routeGeoJSON);
+      } else {
+        console.error('Route source not found or does not support setData');
+      }
     } catch (error) {
       console.error('Error fetching route:', error);
     }
   }
 
   function updateDropoffs(geojson: any) {
-    map.current!.getSource('dropoffs-symbol')!.setData(geojson);
+    const dropoffsSource = map.current!.getSource('dropoffs-symbol');
+    if (dropoffsSource && 'setData' in dropoffsSource) {
+      (dropoffsSource as mapboxgl.GeoJSONSource).setData(geojson);
+    } else {
+      console.error('Dropoffs source not found or does not support setData');
+    }
   }
 
   function assembleQueryURL() {

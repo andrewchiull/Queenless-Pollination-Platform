@@ -19,7 +19,7 @@ engine = create_engine(DB_URL, echo=True)
 class Product(SQLModel, table=True):
     __tablename__: str = "products"
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
     name: str = Field(index=True)
     price: float = Field(index=True)
     description: str = Field(index=True)

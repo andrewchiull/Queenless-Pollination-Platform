@@ -7,9 +7,6 @@ from .db import engine, Order, OrderCreate, OrderPublic, Product
 
 app = FastAPI()
 
-# API_URL of shopping-backend
-API_URL = os.getenv("API_URL") or "http://localhost:5000/api/"
-
 @app.get("/")
 async def read_root():
     # Redirect to /docs
@@ -22,7 +19,6 @@ def read_products():
     with Session(engine) as session:
         products = session.exec(select(Product)).all()
         return products
-
 
 @app.get("/orders/", response_model=list[OrderPublic])
 def read_orders():
@@ -38,3 +34,12 @@ def create_order(order: OrderCreate):
         session.commit()
         session.refresh(db_order)
         return db_order
+
+# Get all addresses from the orders
+@app.get("/orders/addresses/", response_model=list[str])
+def read_addresses():
+    with Session(engine) as session:
+        addresses = session.exec(select(Order.address)).all()
+        # Remove duplicates
+        addresses = list(set(addresses))
+        return addresses

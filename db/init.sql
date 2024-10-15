@@ -2,7 +2,7 @@
 SET NAMES 'utf8mb4';
 
 -- Select database
-USE `queenless-pollination-platform`;
+USE `queenless_pollination_platform`;
 
 -- Create products table
 CREATE TABLE products (

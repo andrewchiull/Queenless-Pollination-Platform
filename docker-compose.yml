@@ -5,13 +5,13 @@ services:
       context: ./db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: queenless-pollination-platform
+      MYSQL_DATABASE: queenless_pollination_platform
     volumes:
       - mysql-queenless-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
-      - queenless-pollination-platform
+      - queenless_pollination_platform
 
   shopping-backend:
     build: 
@@ -24,9 +24,9 @@ services:
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: queenless-pollination-platform
+      DB_NAME: queenless_pollination_platform
     networks:
-      - queenless-pollination-platform
+      - queenless_pollination_platform
 
   shopping-frontend:
     build:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - shopping-backend
     networks:
-      - queenless-pollination-platform
+      - queenless_pollination_platform
 
   routing-backend:
     build:
@@ -50,11 +50,11 @@ services:
     depends_on:
       - db
     networks:
-      - queenless-pollination-platform
+      - queenless_pollination_platform
 
 volumes:
   mysql-queenless-data:
 
 networks:
-  queenless-pollination-platform:
+  queenless_pollination_platform:
     driver: bridge

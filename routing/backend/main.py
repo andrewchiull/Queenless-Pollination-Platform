@@ -1,15 +1,18 @@
 from enum import Enum
 from typing import Union
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
+import httpx
 
 from mysql.connector import cursor
 from db import get_db
 
 app = FastAPI()
 
+# Shopping-backend URL
+SHOPPING_BACKEND_URL = "http://localhost:5000"  # Adjust this if needed
 
 class Item(BaseModel):
     name: str
@@ -24,6 +27,7 @@ async def read_root():
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
+# Directly access databases
 @app.get("/db")
 async def read_db(db: cursor.MySQLCursor = Depends(get_db)):
 
@@ -34,7 +38,7 @@ async def read_db(db: cursor.MySQLCursor = Depends(get_db)):
         return {"databases": result}
     else:
         return {"error": "Database not found"}
-
+    
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Union[str, None] = None):
@@ -97,3 +101,15 @@ async def read_user_item(
 ):
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
+
+@app.get("/shopping-backend/products")
+async def get_shopping_backend_products():
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{SHOPPING_BACKEND_URL}/api/products")
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail=str(e))
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=500, detail=f"Error communicating with shopping-backend: {str(e)}")

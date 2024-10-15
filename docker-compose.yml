@@ -43,12 +43,15 @@ services:
   routing-backend:
     build:
       context: ./routing/backend
-      args:
-        - API_URL=http://shopping-backend:5000/api/
     ports:
       - "5001:5001"
     depends_on:
       - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: queenless_pollination_platform
     networks:
       - queenless_pollination_platform
 

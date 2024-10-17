@@ -33,12 +33,11 @@ services:
       context: ./shopping/frontend
       args:
         - API_URL=http://shopping-backend:5000/api/
+        - NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
     ports:
       - "3000:3000"
     depends_on:
       - shopping-backend
-    environment:
-      MAPBOX_ACCESS_TOKEN: ${MAPBOX_ACCESS_TOKEN}
     networks:
       - queenless_pollination_platform
 

@@ -5,6 +5,7 @@
 1. shopping-frontend: `localhost:3000`
 2. shopping-backend: `localhost:5000`
 3. routing-backend: `localhost:5001`
+4. map-demo: `localhost:3000/map`
 
 ## Deployment
 

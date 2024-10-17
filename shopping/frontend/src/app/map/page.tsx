@@ -10,7 +10,7 @@ dotenv.config();
 
 export default function MapPage() {
   // Mapbox Access Token
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'USE YOUR OWN TOKEN';
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'USE_YOUR_OWN_TOKEN';
 
   // Color variables
   const yellow = '#f2b21d';

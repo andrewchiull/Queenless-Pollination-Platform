@@ -14,32 +14,48 @@ async def read_root():
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
-@app.get("/products/", response_model=list[Product])
+@app.get("/products/", response_model=list[Product] | dict)
 def read_products():
-    with Session(engine) as session:
-        products = session.exec(select(Product)).all()
+    try:
+        with Session(engine) as session:
+            products = session.exec(select(Product)).all()
         return products
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}
 
 @app.get("/orders/", response_model=list[OrderPublic])
 def read_orders():
-    with Session(engine) as session:
-        orders = session.exec(select(Order)).all()
+    try:
+        with Session(engine) as session:
+            orders = session.exec(select(Order)).all()
         return orders
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}
 
-@app.post("/orders/", response_model=OrderPublic)
+@app.post("/orders/", response_model=OrderPublic | dict)
 def create_order(order: OrderCreate):
-    with Session(engine) as session:
-        db_order = Order.model_validate(order)
-        session.add(db_order)
-        session.commit()
-        session.refresh(db_order)
-        return db_order
+    try:
+        with Session(engine) as session:
+            db_order = Order.model_validate(order)
+            session.add(db_order)
+            session.commit()
+            session.refresh(db_order)
+            return db_order
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}
 
 # Get all addresses from the orders
-@app.get("/orders/addresses/", response_model=list[str])
+@app.get("/orders/addresses/", response_model=list[str] | dict)
 def read_addresses():
-    with Session(engine) as session:
-        addresses = session.exec(select(Order.address)).all()
-        # Remove duplicates
-        addresses = list(set(addresses))
-        return addresses
+    try:
+        with Session(engine) as session:
+            addresses = session.exec(select(Order.address)).all()
+            # Remove duplicates
+            addresses = list(set(addresses))
+            return addresses
+    except Exception as e:
+        print(e)
+        return {"error": str(e)}

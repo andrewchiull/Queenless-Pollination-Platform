@@ -32,3 +32,8 @@ CREATE TABLE orders (
 INSERT INTO products (name, price, description) VALUES
 ('小蜂箱', 799.00, '適合小型溫室的蜂箱。'),
 ('大蜂箱', 1599.00, '適合大型溫室的蜂箱。');
+
+-- Add initial orders using 台大地址
+INSERT INTO orders (name, email, address, product_id, quantity) VALUES
+('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號', 1, 1),
+('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號', 2, 3);

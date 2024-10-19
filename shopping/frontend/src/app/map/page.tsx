@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import dotenv from 'dotenv';
-
+import axios from 'axios';
 dotenv.config();
 
 export default function MapPage() {
@@ -199,8 +199,10 @@ export default function MapPage() {
     pointHopper[pt.properties.key] = pt;
 
     try {
-      const response = await fetch(assembleQueryURL());
-      const json = await response.json();
+      console.log('assembleQueryURL()');
+
+      const response = await axios.get(`/api/mapbox-proxy/${encodeURIComponent(assembleQueryURL())}`);
+      const json = response.data;
 
       if (json.code !== 'Ok') {
         const handleMessage =

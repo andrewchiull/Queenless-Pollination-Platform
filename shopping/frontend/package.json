@@ -17,7 +17,7 @@
     "@mui/material": "^5.16.0",
     "@turf/turf": "^7.1.0",
     "@types/mapbox-gl": "^3.4.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "mapbox-gl": "^3.7.0",
     "material-ui-image": "^3.3.2",

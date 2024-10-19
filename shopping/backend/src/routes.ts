@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import pool from './db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import axios from 'axios';
 
 const router = Router();
 
@@ -48,6 +49,16 @@ router.post('/orders', async (req, res) => {
     console.error('Error submitting order. Please check the database connection.\n', error);
     res.status(500).json({ message: 'Error submitting order' });
   }
+});
+
+router.get('/mapbox-proxy/:url', (req, res) => {
+  const url = req.params.url;
+  axios.get(url).then((response: { data: any; }) => {
+    res.send(response.data);
+  }).catch((error: any) => {
+    console.error('Error fetching mapbox data. Please check the connection.\n', error);
+    res.status(500).json({ message: 'Error fetching mapbox data' });
+  });
 });
 
 export default router;

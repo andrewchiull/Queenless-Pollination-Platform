@@ -42,10 +42,12 @@ INSERT INTO product (name, price, description) VALUES
 
 -- Add initial purchases using 台大地址
 INSERT INTO purchase (name, email, address) VALUES
-('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號'),
-('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號');
+('呀哈哈', 'yahaha@test.com', '臺北市大安區羅斯福路四段1號'),
+('嗚啦啦', 'wulala@test.com', '臺北市大安區羅斯福路四段1號');
 
 -- Add initial purchase_item entries
 INSERT INTO purchase_item (purchase_id, product_id, quantity) VALUES
-(1, 1, 4),
-(1, 2, 5);
+(1, 1, 1),
+(1, 2, 2),
+(2, 1, 3),
+(2, 2, 4);

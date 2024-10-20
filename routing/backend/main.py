@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import engine, Purchase, Product, PurchaseRequest
+from .db import engine, Purchase, Product, PurchasePublic
 
 app = FastAPI()
 
@@ -50,18 +50,21 @@ async def read_all_purchases():
         raise HTTPException(status_code=500, detail="Error fetching purchases")
 
 @app.post("/purchase")
-async def create_purchase(req: PurchaseRequest):
+async def create_purchase(req: PurchasePublic):
     try:
         # Log the incoming purchase data for debugging
         print(f"Received purchase data: {req.model_dump_json()}")
 
         with Session(engine) as session:
-            session.add(req.customer)
             session.add(req.purchase)
+            session.add(req.customer)
+            session.add_all(req.items)
             session.commit()
             session.refresh(req)
 
-        return {"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}"}
+        print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.items]}"})
+        
+        return req
 
     except Exception as e:
         print(e)
@@ -72,5 +75,4 @@ async def create_purchase(req: PurchaseRequest):
 async def read_purchase_with_detail(purchase_id: int):
     with Session(engine) as session:
         purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
-        customer = purchase.customer
-    return {"purchase": purchase, "customer": customer}
+        return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)

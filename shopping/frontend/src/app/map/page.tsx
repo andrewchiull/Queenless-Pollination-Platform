@@ -103,34 +103,6 @@ export default function MapPage() {
         },
       });
 
-      map.current!.addLayer({
-        id: 'warehouse-symbol',
-        type: 'symbol',
-        source: {
-          type: 'geojson',
-          data: warehouse,
-        },
-        layout: {
-          'icon-image': 'grocery-15',
-          'icon-size': 1.5,
-        },
-      });
-
-      // Add dropoffs layer
-      map.current!.addLayer({
-        id: 'dropoffs-symbol',
-        type: 'symbol',
-        source: {
-          type: 'geojson',
-          data: dropoffs,
-        },
-        layout: {
-          'icon-allow-overlap': true,
-          'icon-ignore-placement': true,
-          'icon-image': 'marker-15',
-        },
-      });
-
       // Add route source and layers
       const nothing = turf.featureCollection([]);
       map.current!.addSource('route', {
@@ -199,9 +171,7 @@ export default function MapPage() {
     pointHopper[pt.properties.key] = pt;
 
     try {
-      console.log('assembleQueryURL()');
-
-      const response = await axios.get(`/api/mapbox-proxy/${encodeURIComponent(assembleQueryURL())}`);
+      const response = await axios.get(assembleQueryURL());
       const json = response.data;
 
       if (json.code !== 'Ok') {

@@ -50,7 +50,7 @@ const Home = () => {
         <CardInGridWrapper>
           <Button
             sx={{ width: '100%', fontSize: '1.5rem'}}
-            variant="contained" color="warning" onClick={() => window.location.href = '/order'}>
+            variant="contained" color="warning" onClick={() => window.location.href = '/purchase'}>
             立即下單
           </Button>
         </CardInGridWrapper>

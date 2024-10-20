@@ -64,11 +64,11 @@ docker compose up -d --no-deps --build <service_name>
 
 ### 1. shopping-frontend:
 
-The most important part `OrderForm` is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
+The most important part `PurchaseForm` is located in `shopping/frontend/src/app/purchase/components/PurchaseForm.tsx`.
 
 ### 2. routing-backend: 
 
 The routing backend is located in `routing/backend/src/main.py`.
 
-- GET `/products`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `routing/backend/data/products.json` instead.)
-- POST `/orders`: Submits a new order.
+- GET `/product`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `routing/backend/data/product.json` instead.)
+- POST `/purchase`: Submits a new purchase.

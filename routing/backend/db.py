@@ -20,31 +20,28 @@ class Product(SQLModel, table=True):
     price: float = Field(index=True)
     description: str = Field(index=True)
 
-class OrderBase(SQLModel):
+class PurchaseBase(SQLModel):
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
     product_id: int = Field(index=True, foreign_key="product.id")
     quantity: int = Field(index=True)
 
-class Order(OrderBase, table=True):
+class Purchase(PurchaseBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-class OrderCreate(OrderBase):
+class PurchaseCreate(PurchaseBase):
     pass
 
-class OrderPublic(OrderBase):
-    id: int
-
-class OrderItem(BaseModel):
+class PurchaseItem(BaseModel):
     product_id: int
     quantity: int
 
-class OrderRequest(BaseModel):
+class PurchaseRequest(BaseModel):
     name: str
     email: str
     address: str
-    order_items: list[OrderItem]
+    purchase_items: list[PurchaseItem]
 
 
 if __name__ == "__main__":

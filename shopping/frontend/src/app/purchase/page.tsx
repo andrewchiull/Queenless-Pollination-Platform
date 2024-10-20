@@ -6,7 +6,7 @@ import { Container, Grid, CircularProgress } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.min.css';
 import ProductCard from './components/ProductCard';
-import OrderForm from './components/OrderForm';
+import PurchaseForm from './components/PurchaseForm';
 
 interface Product {
   id: number;
@@ -15,7 +15,7 @@ interface Product {
   price: number;
 }
 
-const Order = () => {
+const PurchasePage: React.FC = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
@@ -66,7 +66,7 @@ const Order = () => {
 
       </Grid>
 
-      <OrderForm
+      <PurchaseForm
         products={products}
         quantities={quantities}
         setQuantities={setQuantities}
@@ -76,4 +76,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default PurchasePage;

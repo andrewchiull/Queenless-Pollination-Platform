@@ -7,7 +7,7 @@ CREATE DATABASE IF NOT EXISTS `queenless_pollination_platform`;
 -- Select database
 USE `queenless_pollination_platform`;
 
--- Create product table (renamed from products)
+-- Create product table
 CREATE TABLE product (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -16,8 +16,8 @@ CREATE TABLE product (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create order table (renamed from orders)
-CREATE TABLE `order` (
+-- Create purchase table
+CREATE TABLE purchase (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     email VARCHAR(255) NOT NULL,
@@ -33,7 +33,7 @@ INSERT INTO product (name, price, description) VALUES
 ('小蜂箱', 799.00, '適合小型溫室的蜂箱。'),
 ('大蜂箱', 1599.00, '適合大型溫室的蜂箱。');
 
--- Add initial orders using 台大地址
-INSERT INTO `order` (name, email, address, product_id, quantity) VALUES
+-- Add initial purchases using 台大地址
+INSERT INTO purchase (name, email, address, product_id, quantity) VALUES
 ('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號', 1, 1),
 ('呀哈哈', 'test@test.com', '臺北市大安區羅斯福路四段1號', 2, 3);

@@ -10,14 +10,14 @@ interface Product {
   price: number;
 }
 
-interface OrderFormProps {
+interface PurchaseFormProps {
   products: Product[];
   quantities: { [key: number]: number };
   setQuantities: React.Dispatch<React.SetStateAction<{ [key: number]: number }>>;
 }
 
 
-const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
+const PurchaseForm = ({ products, quantities, setQuantities }: PurchaseFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
@@ -36,18 +36,18 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const order_items = products.map(product => ({
+    const purchase_items = products.map(product => ({
       product_id: product.id,
       quantity: quantities[product.id] || 0
     }));
-    const orderDetails = products
+    const purchaseDetails = products
       .filter(product => quantities[product.id])
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
 
-    axios.post('/api/order', { name, email, address, order_items: order_items })
+    axios.post('/api/purchase', { name, email, address, purchase_items: purchase_items })
       .then(response => {
-        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`, {
+        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${purchaseDetails}`, {
           position: 'top-center',
           autoClose: false,
           closeOnClick: false,
@@ -114,4 +114,4 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
   );
 };
 
-export default OrderForm;
+export default PurchaseForm;

@@ -4,9 +4,8 @@ from typing import List
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
-import httpx
 
-from .db import OrderCreate, OrderRequest, engine, Order, Product
+from .db import PurchaseCreate, PurchaseRequest, engine, Purchase, Product
 
 app = FastAPI()
 
@@ -41,35 +40,35 @@ async def read_products():
             print(f"Error reading local products file: {local_error}")
             raise HTTPException(status_code=500, detail="Error fetching products")
 
-@app.get("/order")
-async def read_all_orders():
+@app.get("/purchase")
+async def read_all_purchases():
     try:
         with Session(engine) as session:
-            orders = session.exec(select(Order)).all()
-        return orders
+            purchases = session.exec(select(Purchase)).all()
+        return purchases
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=500, detail="Error fetching orders")
+        raise HTTPException(status_code=500, detail="Error fetching purchases")
 
-@app.post("/order")
-async def create_order(request: Request):
+@app.post("/purchase")
+async def create_purchase(request: Request):
     try:
-        # Log the incoming order data for debugging
+        # Log the incoming purchase data for debugging
         req = await request.json()
-        print(f"Received order data: {req}")
-        req = OrderRequest.model_validate(req)
+        print(f"Received purchase data: {req}")
+        req = PurchaseRequest.model_validate(req)
 
-        db_orders: list[Order] = list()
+        db_purchases: list[Purchase] = list()
         with Session(engine) as session:
-            for item in req.order_items:
-                db_order = Order.model_validate(dict(name=req.name, email=req.email, address=req.address, product_id=item.product_id, quantity=item.quantity))
-                session.add(db_order)
+            for item in req.purchase_items:
+                db_purchase = Purchase.model_validate(dict(name=req.name, email=req.email, address=req.address, product_id=item.product_id, quantity=item.quantity))
+                session.add(db_purchase)
                 session.commit()
-                session.refresh(db_order)
+                session.refresh(db_purchase)
                 
-                db_orders.append(db_order)
-        return {"message": f"訂單已成功提交！姓名：{req.name}，電子郵件：{req.email}，地址：{req.address}，訂單內容：{', '.join([order.model_dump_json() for order in db_orders])}"}
+                db_purchases.append(db_purchase)
+        return {"message": f"訂單已成功提交！姓名：{req.name}，電子郵件：{req.email}，地址：{req.address}，訂單內容：{', '.join([purchase.model_dump_json() for purchase in db_purchases])}"}
     except Exception as e:
         print(e)
         # Return error message to frontend as error code 500
-        raise HTTPException(status_code=500, detail=f"Error submitting order: {e}")
+        raise HTTPException(status_code=500, detail=f"Error submitting purchase: {e}")

@@ -14,19 +14,22 @@ DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(DB_URL, echo=True)
 
 class Product(SQLModel, table=True):
+    __tablename__ = "product"
     id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     price: float = Field(index=True)
     description: str = Field(index=True)
 
 class Purchase(SQLModel, table=True):
+    __tablename__ = "purchase"
     id: int | None = Field(default=None, primary_key=True)
 
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
 
-class Purchase_Item(SQLModel, table=True):
+class PurchaseItem(SQLModel, table=True):
+    __tablename__ = "purchase_item"
     id: int | None = Field(default=None, primary_key=True)
     purchase_id: int | None = Field(default=None, foreign_key="purchase.id")
 
@@ -35,7 +38,7 @@ class Purchase_Item(SQLModel, table=True):
 
 class PurchaseRequest(SQLModel):
     purchase: Purchase
-    purchase_item: list[Purchase_Item]
+    purchase_item: list[PurchaseItem]
 
 
 if __name__ == "__main__":

@@ -3,20 +3,23 @@
 ## Services
 
 1. shopping-frontend: `localhost:3000`
-2. shopping-backend: `localhost:5000`
+2. ~~ shopping-backend: `localhost:5000` ~~ **Deprecated:** Use routing-backend instead.
 3. routing-backend: `localhost:5001`
 4. map-demo: `localhost:3000/map`
 
 ## Deployment
 
-### 1. Setup `.env` file for MySQL password.
+### 1. Setup `.env`.
 
-You can copy `.env.example` to `.env` and modify it, but **USE YOUR OWN PASSWORD** instead of `tmp-password`.
+You can copy `.env.example` to `.env` and modify it.
 
 ```bash
-# In .env
+# /.env
 # Password for MySQL root user
-MYSQL_ROOT_PASSWORD=your_own_password
+MYSQL_ROOT_PASSWORD=YOUR_OWN_PASSWORD
+
+# Mapbox Access Token
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=YOUR_OWN_TOKEN
 ```
 
 **Or use safer methods like `docker secret` to manage secrets.**

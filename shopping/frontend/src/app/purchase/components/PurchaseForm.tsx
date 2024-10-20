@@ -36,18 +36,27 @@ const PurchaseForm = ({ products, quantities, setQuantities }: PurchaseFormProps
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const purchase_items = products.map(product => ({
+    const item = products.map(product => ({
       product_id: product.id,
       quantity: quantities[product.id] || 0
     }));
-    const purchaseDetails = products
+    const description = products
       .filter(product => quantities[product.id])
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
 
-    axios.post('/api/purchase', { name, email, address, purchase_items: purchase_items })
+    axios.post('/api/purchase', {
+      customer: {
+        name, email, address
+      },
+      purchase: {
+        description: `${email}: ${description}`
+      },
+      item: item
+    })
       .then(response => {
-        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${purchaseDetails}`, {
+        console.log(response);
+        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${description}`, {
           position: 'top-center',
           autoClose: false,
           closeOnClick: false,

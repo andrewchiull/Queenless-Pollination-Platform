@@ -58,11 +58,16 @@ async def create_purchase(req: PurchasePublic):
         with Session(engine) as session:
             session.add(req.purchase)
             session.add(req.customer)
-            session.add_all(req.items)
+            session.add_all(req.item)
             session.commit()
-            session.refresh(req)
 
-        print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.items]}"})
+            session.refresh(req.purchase)
+            session.refresh(req.customer)
+            for item in req.item:
+                session.refresh(item)
+
+
+        print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.item]}"})
         
         return req
 

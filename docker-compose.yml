@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: queenless_pollination_platform
     volumes:
-      - mysql-queenless-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -42,7 +42,7 @@ services:
       - queenless_pollination_platform
 
 volumes:
-  mysql-queenless-data:
+  mysql-data:
 
 networks:
   queenless_pollination_platform:

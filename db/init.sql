@@ -43,10 +43,8 @@ CREATE TABLE purchase_customer_link (
 -- Create item table
 CREATE TABLE item (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    purchase_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
-    FOREIGN KEY (purchase_id) REFERENCES purchase(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 );
 
@@ -83,13 +81,13 @@ INSERT INTO purchase_customer_link (purchase_id, customer_id) VALUES
 (3, 1);  -- purchase #3 by customer #1 '呀哈哈'
 
 -- Add initial item entries
-INSERT INTO item (purchase_id, product_id, quantity) VALUES
-(1, 1, 1),  -- purchase #1: 小蜂箱 x 1
-(1, 2, 2),  -- purchase #1: 大蜂箱 x 2
-(2, 1, 2),  -- purchase #2: 小蜂箱 x 2
-(2, 2, 1),  -- purchase #2: 大蜂箱 x 1
-(3, 1, 3),  -- purchase #3: 小蜂箱 x 3
-(3, 2, 3);  -- purchase #3: 大蜂箱 x 3
+INSERT INTO item (product_id, quantity) VALUES
+(1, 1),  -- purchase #1: 小蜂箱 x 1
+(2, 2),  -- purchase #1: 大蜂箱 x 2
+(1, 2),  -- purchase #2: 小蜂箱 x 2
+(2, 1),  -- purchase #2: 大蜂箱 x 1
+(1, 3),  -- purchase #3: 小蜂箱 x 3
+(2, 3);  -- purchase #3: 大蜂箱 x 3
 
 -- Add initial purchase_item_link entries
 INSERT INTO purchase_item_link (purchase_id, item_id) VALUES

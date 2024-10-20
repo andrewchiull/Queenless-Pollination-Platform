@@ -113,9 +113,13 @@ async def create_purchase(req: PurchasePublic):
 
 @app.get("/purchase/{purchase_id}")
 async def read_purchase_with_detail(purchase_id: int):
-    with Session(engine) as session:
-        purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
-        print('purchase', purchase)
-        print('customer', purchase.customer)
-        print('item', purchase.item)
-        return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
+    try:
+        with Session(engine) as session:
+            purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
+            print('purchase', purchase)
+            print('customer', purchase.customer)
+            print('item', purchase.item)
+            return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Error fetching purchase")

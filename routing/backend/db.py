@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
 from sqlmodel import Session, create_engine, Field, SQLModel, select
 
 load_dotenv()
@@ -40,6 +41,17 @@ class OrderCreate(OrderBase):
 
 class OrderPublic(OrderBase):
     id: int
+
+class OrderItem(BaseModel):
+    productId: int
+    quantity: int
+
+class OrderRequest(BaseModel):
+    name: str
+    email: str
+    address: str
+    order: list[OrderItem]
+
 
 if __name__ == "__main__":
     print("Testing: read_products()")

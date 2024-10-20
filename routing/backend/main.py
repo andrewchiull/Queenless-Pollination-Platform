@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
@@ -39,7 +39,7 @@ async def read_all_products():
             print(f"Error reading local products file: {local_error}")
             raise HTTPException(status_code=500, detail="Error fetching products")
 
-@app.get("/purchase/all")
+@app.get("/purchase/all", status_code=201)
 async def read_all_purchases():
     try:
         with Session(engine) as session:
@@ -49,8 +49,8 @@ async def read_all_purchases():
         print(e)
         raise HTTPException(status_code=500, detail="Error fetching purchases")
 
-@app.post("/purchase")
-async def create_purchase(req: PurchasePublic):
+@app.post("/purchase", status_code=201)
+async def create_purchase(req: PurchasePublic, res: Response):
     try:
         # Log the incoming purchase data for debugging
         print(f"Received purchase data: {req.model_dump_json()}")
@@ -102,8 +102,6 @@ async def create_purchase(req: PurchasePublic):
                 session.refresh(req.purchase)
                 for item in req.item:
                     session.refresh(item)
-        # print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.item]}"})
-        
         return req
 
     except Exception as e:

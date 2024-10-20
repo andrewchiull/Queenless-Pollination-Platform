@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import engine, Purchase, Product, PurchasePublic
+from .db import Customer, engine, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
 
 app = FastAPI()
 
@@ -54,20 +54,55 @@ async def create_purchase(req: PurchasePublic):
     try:
         # Log the incoming purchase data for debugging
         print(f"Received purchase data: {req.model_dump_json()}")
-
+        # Is this a new customer?
         with Session(engine) as session:
-            session.add(req.purchase)
-            session.add(req.customer)
-            session.add_all(req.item)
-            session.commit()
+            existed_customer = session.exec(select(Customer).where(Customer.email == req.customer.email)).first()
 
-            session.refresh(req.purchase)
-            session.refresh(req.customer)
-            for item in req.item:
-                session.refresh(item)
+        if not existed_customer: # New customer
+            with Session(engine) as session:
+                session.add(req.purchase)
+                session.add(req.customer)
+                session.add_all(req.item)
+                session.commit()
 
+                session.add(PurchaseCustomerLink(
+                    purchase_id=req.purchase.id,
+                    customer_id=req.customer.id
+                ))
+                for item in req.item:
+                    session.add(PurchaseItemLink(
+                        purchase_id=req.purchase.id,
+                        item_id=item.id
+                    ))
+                session.commit()
 
-        print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.item]}"})
+                session.refresh(req.purchase)
+                session.refresh(req.customer)
+                for item in req.item:
+                    session.refresh(item)
+
+        else:
+            with Session(engine) as session:
+                session.add(req.purchase)
+                session.add_all(req.item)
+                req.customer.id = existed_customer.id
+                session.commit()
+
+                session.add(PurchaseCustomerLink(
+                    purchase_id=req.purchase.id,
+                    customer_id=existed_customer.id
+                ))
+                for item in req.item:
+                    session.add(PurchaseItemLink(
+                        purchase_id=req.purchase.id,
+                        item_id=item.id
+                    ))
+                session.commit()
+
+                session.refresh(req.purchase)
+                for item in req.item:
+                    session.refresh(item)
+        # print({"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}，項目：{[item.model_dump() for item in req.item]}"})
         
         return req
 
@@ -80,4 +115,7 @@ async def create_purchase(req: PurchasePublic):
 async def read_purchase_with_detail(purchase_id: int):
     with Session(engine) as session:
         purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
+        print('purchase', purchase)
+        print('customer', purchase.customer)
+        print('item', purchase.item)
         return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)

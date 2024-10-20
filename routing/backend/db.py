@@ -14,34 +14,28 @@ DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(DB_URL, echo=True)
 
 class Product(SQLModel, table=True):
-
-    id: int = Field(primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     price: float = Field(index=True)
     description: str = Field(index=True)
 
-class PurchaseBase(SQLModel):
+class Purchase(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
-    product_id: int = Field(index=True, foreign_key="product.id")
-    quantity: int = Field(index=True)
 
-class Purchase(PurchaseBase, table=True):
+class Purchase_Item(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    purchase_id: int | None = Field(default=None, foreign_key="purchase.id")
 
-class PurchaseCreate(PurchaseBase):
-    pass
-
-class PurchaseItem(BaseModel):
-    product_id: int
+    product_id: int = Field(foreign_key="product.id")
     quantity: int
 
-class PurchaseRequest(BaseModel):
-    name: str
-    email: str
-    address: str
-    purchase_items: list[PurchaseItem]
+class PurchaseRequest(SQLModel):
+    purchase: Purchase
+    purchase_item: list[Purchase_Item]
 
 
 if __name__ == "__main__":

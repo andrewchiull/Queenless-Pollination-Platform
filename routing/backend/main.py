@@ -23,7 +23,7 @@ async def read_root():
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
-@app.get("/products")
+@app.get("/product")
 async def read_products():
     try:
         with Session(engine) as session:
@@ -41,7 +41,7 @@ async def read_products():
             print(f"Error reading local products file: {local_error}")
             raise HTTPException(status_code=500, detail="Error fetching products")
 
-@app.get("/orders")
+@app.get("/order")
 async def read_all_orders():
     try:
         with Session(engine) as session:
@@ -51,7 +51,7 @@ async def read_all_orders():
         print(e)
         raise HTTPException(status_code=500, detail="Error fetching orders")
 
-@app.post("/orders")
+@app.post("/order")
 async def create_order(request: Request):
     try:
         # Log the incoming order data for debugging

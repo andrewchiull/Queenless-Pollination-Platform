@@ -15,9 +15,9 @@ async function readLocalProducts(): Promise<any[]> {
 }
 
 // If the database is not ready, read the local products file
-router.get('/products', async (req, res) => {
+router.get('/product', async (req, res) => {
   try {
-    const [rows] = await pool.query<RowDataPacket[]>('SELECT id, name, price, description, created_at FROM products');
+    const [rows] = await pool.query<RowDataPacket[]>('SELECT id, name, price, description, created_at FROM product');
     res.json(rows);
   } catch (error) {
     console.error('Error fetching products from database. Please check the database connection.\n', error);
@@ -32,13 +32,13 @@ router.get('/products', async (req, res) => {
   }
 });
 
-router.post('/orders', async (req, res) => {
+router.post('/order', async (req, res) => {
   const { name, email, address, order_items } = req.body;
   try {
     // Insert order information
     for (const item of order_items) {
       await pool.query<ResultSetHeader>(
-        'INSERT INTO orders (name, email, address, product_id, quantity) VALUES (?, ?, ?, ?, ?)', 
+        'INSERT INTO `order` (name, email, address, product_id, quantity) VALUES (?, ?, ?, ?, ?)', 
         [name, email, address, item.product_id, item.quantity]
       );
     }

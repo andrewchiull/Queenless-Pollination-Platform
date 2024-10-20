@@ -45,7 +45,7 @@ const OrderForm = ({ products, quantities, setQuantities }: OrderFormProps) => {
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
 
-    axios.post('/api/orders', { name, email, address, order_items: order_items })
+    axios.post('/api/order', { name, email, address, order_items: order_items })
       .then(response => {
         toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${orderDetails}`, {
           position: 'top-center',

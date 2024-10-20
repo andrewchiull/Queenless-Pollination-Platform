@@ -13,12 +13,7 @@ DB_NAME = os.getenv("DB_NAME")
 DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(DB_URL, echo=True)
 
-
-# For SQLModels, use `__tablename__` to specify the actual table name in the database
-# Otherwise, SQLModel will use the class name
-# See https://github.com/fastapi/sqlmodel/issues/159
 class Product(SQLModel, table=True):
-    __tablename__: str = "products"
 
     id: int = Field(primary_key=True)
     name: str = Field(index=True)
@@ -29,11 +24,10 @@ class OrderBase(SQLModel):
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
-    product_id: int = Field(index=True, foreign_key="products.id")
+    product_id: int = Field(index=True, foreign_key="product.id")
     quantity: int = Field(index=True)
 
 class Order(OrderBase, table=True):
-    __tablename__: str = "orders"
     id: int | None = Field(default=None, primary_key=True)
 
 class OrderCreate(OrderBase):

@@ -6,6 +6,7 @@
 2. ~~ shopping-backend: `localhost:5000` ~~ **Deprecated:** Use routing-backend instead.
 3. routing-backend: `localhost:5001`
 4. map-demo: `localhost:3000/map`
+5. db: `localhost:3306`: **Table names are SINGULAR!**
 
 ## Deployment
 
@@ -61,18 +62,13 @@ docker compose up -d --no-deps --build <service_name>
 
 ## Development
 
-
-### 1. shopping-frontend: Frontend for user
+### 1. shopping-frontend:
 
 The most important part `OrderForm` is located in `shopping/frontend/src/app/order/components/OrderForm.tsx`.
 
-### 2. shopping-backend: APIs for orders
+### 2. routing-backend: 
 
-The backend API is located in `shopping/backend/src/routes.ts`.
-- GET `/products`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `shopping/backend/data/products.json` instead.)
+The routing backend is located in `routing/backend/src/main.py`.
+
+- GET `/products`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `routing/backend/data/products.json` instead.)
 - POST `/orders`: Submits a new order.
-
-
-### 3. routing-backend: Routing
-
-The routing backend is located in `shopping/routing/backend/src/main.py`.

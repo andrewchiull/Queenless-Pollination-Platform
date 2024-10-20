@@ -10,7 +10,7 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   quantity: number;
-  onQuantityChange: (productId: number, quantity: number) => void;
+  onQuantityChange: (product_id: number, quantity: number) => void;
 }
 
 const ProductCard = ({ product, quantity, onQuantityChange }: ProductCardProps) => (

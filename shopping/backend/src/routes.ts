@@ -33,17 +33,17 @@ router.get('/products', async (req, res) => {
 });
 
 router.post('/orders', async (req, res) => {
-  const { name, email, address, order } = req.body;
+  const { name, email, address, order_items } = req.body;
   try {
     // Insert order information
-    for (const item of order) {
+    for (const item of order_items) {
       await pool.query<ResultSetHeader>(
         'INSERT INTO orders (name, email, address, product_id, quantity) VALUES (?, ?, ?, ?, ?)', 
-        [name, email, address, item.productId, item.quantity]
+        [name, email, address, item.product_id, item.quantity]
       );
     }
 
-    res.json({ message: `訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${order}` });
+    res.status(200).json({ message: '訂單已成功提交！' });
     
   } catch (error) {
     console.error('Error submitting order. Please check the database connection.\n', error);

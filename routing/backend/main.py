@@ -61,8 +61,8 @@ async def create_order(request: Request):
 
         db_orders: list[Order] = list()
         with Session(engine) as session:
-            for item in req.order:
-                db_order = Order.model_validate(dict(name=req.name, email=req.email, address=req.address, product_id=item.productId, quantity=item.quantity))
+            for item in req.order_items:
+                db_order = Order.model_validate(dict(name=req.name, email=req.email, address=req.address, product_id=item.product_id, quantity=item.quantity))
                 session.add(db_order)
                 session.commit()
                 session.refresh(db_order)

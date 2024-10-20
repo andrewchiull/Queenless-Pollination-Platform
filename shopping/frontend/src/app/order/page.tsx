@@ -32,10 +32,10 @@ const Order = () => {
     });
   }, []);
 
-  const handleQuantityChange = (productId: number, quantity: number) => {
+  const handleQuantityChange = (product_id: number, quantity: number) => {
     setQuantities(prevQuantities => ({
       ...prevQuantities,
-      [productId]: quantity
+      [product_id]: quantity
     }));
   };
 

@@ -43,14 +43,14 @@ class OrderPublic(OrderBase):
     id: int
 
 class OrderItem(BaseModel):
-    productId: int
+    product_id: int
     quantity: int
 
 class OrderRequest(BaseModel):
     name: str
     email: str
     address: str
-    order: list[OrderItem]
+    order_items: list[OrderItem]
 
 
 if __name__ == "__main__":

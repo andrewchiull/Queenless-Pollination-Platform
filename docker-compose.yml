@@ -13,21 +13,6 @@ services:
     networks:
       - queenless_pollination_platform
 
-  shopping-backend:
-    build: 
-      context: ./shopping/backend
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-    environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: queenless_pollination_platform
-    networks:
-      - queenless_pollination_platform
-
   shopping-frontend:
     build:
       context: ./shopping/frontend

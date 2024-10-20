@@ -1,10 +1,10 @@
 import os
 import json
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import PurchaseItem, PurchaseRequest, engine, Purchase, Product
+from .db import engine, Purchase, Product, PurchaseRequest
 
 app = FastAPI()
 
@@ -56,21 +56,12 @@ async def create_purchase(req: PurchaseRequest):
         print(f"Received purchase data: {req.model_dump_json()}")
 
         with Session(engine) as session:
+            session.add(req.customer)
             session.add(req.purchase)
             session.commit()
-            session.refresh(req.purchase)
+            session.refresh(req)
 
-        print("before",req.purchase_item)
-        with Session(engine) as session:
-            for item in req.purchase_item:
-                item.purchase_id = req.purchase.id
-            session.add_all(req.purchase_item)
-            session.commit()
-
-            created_items = session.exec(select(PurchaseItem).where(PurchaseItem.purchase_id == req.purchase.id)).all()
-
-        print("after",created_items)
-        return {"message": f"訂單已成功提交！姓名：{req.purchase.name}，電子郵件：{req.purchase.email}，地址：{req.purchase.address}，訂單內容：{', '.join([item.model_dump_json() for item in created_items])}"}
+        return {"message": f"訂單已成功提交！姓名：{req.customer.name}，電子郵件：{req.customer.email}，地址：{req.customer.address}，訂單內容：{req.purchase.model_dump_json()}"}
 
     except Exception as e:
         print(e)
@@ -81,5 +72,5 @@ async def create_purchase(req: PurchaseRequest):
 async def read_purchase_with_detail(purchase_id: int):
     with Session(engine) as session:
         purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
-        purchase_items = session.exec(select(PurchaseItem).where(PurchaseItem.purchase_id == purchase_id)).all()
-    return {"purchase": purchase, "purchase_items": purchase_items}
+        customer = purchase.customer
+    return {"purchase": purchase, "customer": customer}

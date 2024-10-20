@@ -1,7 +1,8 @@
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from sqlmodel import Session, create_engine, Field, SQLModel, select
+from sqlmodel import Relationship, Session, create_engine, Field, SQLModel, select
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST") or "localhost"
@@ -20,26 +21,28 @@ class Product(SQLModel, table=True):
     price: float = Field(index=True)
     description: str = Field(index=True)
 
-class Purchase(SQLModel, table=True):
-    __tablename__ = "purchase"
-    id: int | None = Field(default=None, primary_key=True)
+class PurchaseCustomerLink(SQLModel, table=True):
+    __tablename__ = "purchase_customer_link"
+    purchase_id: int | None = Field(default=None, foreign_key="purchase.id", primary_key=True)
+    customer_id: int | None = Field(default=None, foreign_key="customer.id", primary_key=True)
 
+class Customer(SQLModel, table=True):
+    __tablename__ = "customer"
+    id: int | None = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
+    purchase: list["Purchase"] = Relationship(back_populates="customer", link_model=PurchaseCustomerLink)
 
-class PurchaseItem(SQLModel, table=True):
-    __tablename__ = "purchase_item"
+class Purchase(SQLModel, table=True):
+    __tablename__ = "purchase"
     id: int | None = Field(default=None, primary_key=True)
-    purchase_id: int | None = Field(default=None, foreign_key="purchase.id")
+    product_name: str = Field(default="XYZ", index=True)
+    customer: Customer = Relationship(back_populates="purchase", link_model=PurchaseCustomerLink)
 
-    product_id: int = Field(foreign_key="product.id")
-    quantity: int
-
-class PurchaseRequest(SQLModel):
+class PurchaseRequest(BaseModel):
+    customer: Customer
     purchase: Purchase
-    purchase_item: list[PurchaseItem]
-
 
 if __name__ == "__main__":
     print("Testing: read_products()")

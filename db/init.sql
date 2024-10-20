@@ -16,23 +16,27 @@ CREATE TABLE product (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create customer table
+CREATE TABLE customer (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    email VARCHAR(255) NOT NULL,
+    address TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+);
+
 -- Create purchase table
 CREATE TABLE purchase (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    address TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    product_name TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 );
 
--- Create purchase_item table (junction table for purchases and products)
-CREATE TABLE purchase_item (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+-- Create purchase_customer_link table (junction table for purchases and customers)
+CREATE TABLE purchase_customer_link (
     purchase_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL,
+    customer_id INT NOT NULL,
+    PRIMARY KEY (purchase_id, customer_id),
     FOREIGN KEY (purchase_id) REFERENCES purchase(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
 );
 
 -- Add initial products
@@ -40,14 +44,19 @@ INSERT INTO product (name, price, description) VALUES
 ('小蜂箱', 799.00, '適合小型溫室的蜂箱。'),
 ('大蜂箱', 1599.00, '適合大型溫室的蜂箱。');
 
--- Add initial purchases using 台大地址
-INSERT INTO purchase (name, email, address) VALUES
+-- Add initial customers with 台大地址
+INSERT INTO customer (name, email, address) VALUES
 ('呀哈哈', 'yahaha@test.com', '臺北市大安區羅斯福路四段1號'),
 ('嗚啦啦', 'wulala@test.com', '臺北市大安區羅斯福路四段1號');
 
--- Add initial purchase_item entries
-INSERT INTO purchase_item (purchase_id, product_id, quantity) VALUES
-(1, 1, 1),
-(1, 2, 2),
-(2, 1, 3),
-(2, 2, 4);
+-- Add initial purchases
+INSERT INTO purchase (product_name) VALUES
+('小蜂箱'),  -- Purchase by '呀哈哈'
+('大蜂箱');  -- Purchase by '嗚啦啦'
+
+-- Add initial purchase_customer_link entries
+INSERT INTO purchase_customer_link (purchase_id, customer_id) VALUES
+(1, 1),  -- '呀哈哈' bought 1 小蜂箱
+(1, 2),  -- '呀哈哈' bought 2 大蜂箱
+(2, 1),  -- '嗚啦啦' bought 1 小蜂箱
+(2, 2);  -- '嗚啦啦' bought 2 大蜂箱

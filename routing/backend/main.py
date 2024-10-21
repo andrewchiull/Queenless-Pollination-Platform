@@ -5,7 +5,8 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import engine, create_db_and_tables, read_local_products, read_local_purchases, Customer, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
+from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
+from .models import Product, Purchase, Customer, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,17 +40,7 @@ async def read_root():
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
-@app.post("/product", response_model=Product)
-async def create_product(product: Product):
-    with Session(engine) as session:
-        exists = session.exec(select(Product).where(Product.name == product.name)).first() is not None
-        if not exists:
-            session.add(product)
-            session.commit()
-            session.refresh(product)
-    return product
-
-@app.get("/product/all")
+@app.get("/product/all", response_model=list[Product])
 async def read_all_products():
     try:
         with Session(engine) as session:
@@ -67,7 +58,27 @@ async def read_all_products():
             print(f"Error reading local products file: {local_error}")
             raise HTTPException(status_code=500, detail="Error fetching products")
 
-@app.get("/purchase/all", status_code=201)
+@app.post("/product", response_model=Product)
+async def create_product(product: Product):
+    with Session(engine) as session:
+        exists = session.exec(select(Product).where(Product.name == product.name)).first() is not None
+        if not exists:
+            session.add(product)
+            session.commit()
+            session.refresh(product)
+    return product
+
+@app.get("/purchase/{purchase_id}", response_model=PurchasePublic)
+async def read_purchase_with_detail(purchase_id: int):
+    try:
+        with Session(engine) as session:
+            purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
+            return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Error fetching purchase")
+
+@app.get("/purchase/all", response_model=list[PurchasePublic])
 async def read_all_purchases():
     try:
         with Session(engine) as session:
@@ -77,7 +88,7 @@ async def read_all_purchases():
         print(e)
         raise HTTPException(status_code=500, detail="Error fetching purchases")
 
-@app.post("/purchase", status_code=201)
+@app.post("/purchase", response_model=PurchasePublic)
 async def create_purchase(req: PurchasePublic):
     try:
         # Log the incoming purchase data for debugging
@@ -136,19 +147,6 @@ async def create_purchase(req: PurchasePublic):
         print(e)
         # Return error message to frontend as error code 500
         raise HTTPException(status_code=500, detail=f"Error submitting purchase: {e}")
-
-@app.get("/purchase/{purchase_id}")
-async def read_purchase_with_detail(purchase_id: int):
-    try:
-        with Session(engine) as session:
-            purchase = session.exec(select(Purchase).where(Purchase.id == purchase_id)).first()
-            print('purchase', purchase)
-            print('customer', purchase.customer)
-            print('item', purchase.item)
-            return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Error fetching purchase")
 
 # TODO: get address by purchase_id
 # TODO: get multiple address by multiple purchase_id

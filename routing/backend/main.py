@@ -1,12 +1,23 @@
 import os
 import json
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import Customer, engine, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
+from .db import engine, create_db_and_tables, Customer, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # See: [Lifespan Events - FastAPI](https://fastapi.tiangolo.com/advanced/events/#lifespan)
+    # Startup events:
+    create_db_and_tables()
+    yield
+    # Shutdown events:
+    pass
+
+
+app = FastAPI(lifespan=lifespan)
 
 # Function to read local JSON file
 async def read_local_products():

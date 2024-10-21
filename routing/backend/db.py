@@ -1,17 +1,22 @@
 import os
-from datetime import datetime
 from dotenv import load_dotenv
-from sqlmodel import Relationship, Session, create_engine, Field, SQLModel, select
+from sqlmodel import SQLModel, Field, Relationship, create_engine
+from sqlalchemy.pool import NullPool
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST") or "localhost"
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
+CHARSET = "utf8mb4"
 
 # mysql+pymysql://<username>:<password>@<host>/<dbname>[?<options>]
-DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
-engine = create_engine(DB_URL, echo=True)
+DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}?charset={CHARSET}"
+engine = create_engine(DB_URL, echo=True, poolclass=NullPool)
+
+def create_db_and_tables():
+    print(DB_URL)
+    SQLModel.metadata.create_all(engine)
 
 class Product(SQLModel, table=True):
     __tablename__ = "product"
@@ -61,16 +66,3 @@ class PurchasePublic(SQLModel):
     purchase: Purchase
     customer: Customer
     item: list[Item]
-
-if __name__ == "__main__":
-    print("Testing: read_products()")
-
-    def read_products():
-        with Session(engine) as session:
-            results = session.exec(select(Product))
-            if results:
-                return {"products": results.all()}
-            else:
-                return {"error": "Database not found"}
-
-    print(read_products())

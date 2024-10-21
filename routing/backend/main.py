@@ -12,6 +12,7 @@ async def lifespan(app: FastAPI):
     # See: [Lifespan Events - FastAPI](https://fastapi.tiangolo.com/advanced/events/#lifespan)
     # Startup events:
     create_db_and_tables()
+    await add_initial_products()
     yield
     # Shutdown events:
     pass
@@ -26,11 +27,27 @@ async def read_local_products():
         res = json.load(f)
         return res
 
+# Add initial products
+async def add_initial_products():
+    products: list[dict] = await read_local_products()
+    for product in products:
+        await create_product(Product(**product))
+
 @app.get("/")
 async def read_root():
     print("Hello! This is routing-backend. To use GUI, go to http://localhost:5001/docs")
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
+
+@app.post("/product", response_model=Product)
+async def create_product(product: Product):
+    with Session(engine) as session:
+        exists = session.exec(select(Product).where(Product.name == product.name)).first() is not None
+        if not exists:
+            session.add(product)
+            session.commit()
+            session.refresh(product)
+    return product
 
 @app.get("/product/all")
 async def read_all_products():

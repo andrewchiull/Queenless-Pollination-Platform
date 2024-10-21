@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
-from .db import engine, create_db_and_tables, Customer, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
+from .db import engine, create_db_and_tables, read_local_products, read_local_purchases, Customer, Purchase, Product, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
     # Startup events:
     create_db_and_tables()
     await add_initial_products()
+    await add_initial_purchases()
     yield
     # Shutdown events:
     pass
@@ -20,18 +21,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Function to read local JSON file
-async def read_local_products():
-    file_path = os.path.join(os.path.dirname(__file__), 'data', 'products.json')
-    with open(file_path, 'r') as f:
-        res = json.load(f)
-        return res
-
 # Add initial products
 async def add_initial_products():
     products: list[dict] = await read_local_products()
     for product in products:
         await create_product(Product(**product))
+
+# Add initial purchases
+async def add_initial_purchases():
+    purchases: list[dict] = await read_local_purchases()
+    for purchase in purchases:
+        await create_purchase(PurchasePublic(**purchase))
 
 @app.get("/")
 async def read_root():
@@ -78,7 +78,7 @@ async def read_all_purchases():
         raise HTTPException(status_code=500, detail="Error fetching purchases")
 
 @app.post("/purchase", status_code=201)
-async def create_purchase(req: PurchasePublic, res: Response):
+async def create_purchase(req: PurchasePublic):
     try:
         # Log the incoming purchase data for debugging
         print(f"Received purchase data: {req.model_dump_json()}")

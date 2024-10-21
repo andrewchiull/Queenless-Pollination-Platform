@@ -1,0 +1,62 @@
+[
+    {
+        "purchase": {
+            "description": "purchase #1 by customer #1 \"呀哈哈\": 小蜂箱 x 1, 大蜂箱 x 2"
+        },
+        "customer": {
+            "name": "呀哈哈",
+            "email": "yahaha@test.com",
+            "address": "臺北市大安區羅斯福路四段1號"
+        },
+        "item": [
+            {
+                "product_id": 1,
+                "quantity": 1
+            },
+            {
+                "product_id": 2,
+                "quantity": 2
+            }
+        ]
+    },
+    {
+        "purchase": {
+            "description": "purchase #2 by customer #2 \"嗚啦啦\": 小蜂箱 x 2, 大蜂箱 x 1"
+        },
+        "customer": {
+            "name": "嗚啦啦",
+            "email": "wulala@test.com",
+            "address": "臺北市大安區羅斯福路四段2號"
+        },
+        "item": [
+            {
+                "product_id": 1,
+                "quantity": 2
+            },
+            {
+                "product_id": 2,
+                "quantity": 1
+            }
+        ]
+    },
+    {
+        "purchase": {
+            "description": "purchase #3 by customer #1 \"呀哈哈\": 小蜂箱 x 3, 大蜂箱 x 3"
+        },
+        "customer": {
+            "name": "呀哈哈",
+            "email": "yahaha@test.com",
+            "address": "臺北市大安區羅斯福路四段3號"
+        },
+        "item": [
+            {
+                "product_id": 1,
+                "quantity": 3
+            },
+            {
+                "product_id": 2,
+                "quantity": 3
+            }
+        ]
+    }
+]

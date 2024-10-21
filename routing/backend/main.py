@@ -121,3 +121,7 @@ async def read_purchase_with_detail(purchase_id: int):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Error fetching purchase")
+
+# TODO: get address by purchase_id
+# TODO: get multiple address by multiple purchase_id
+# TODO: JOIN purchase and customer

@@ -1,12 +1,12 @@
 import os
 import json
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Product, Purchase, Customer, PurchasePublic, PurchaseItemLink, PurchaseCustomerLink
+from .models import Product, Purchase, Customer, PurchasePublic
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,8 +61,8 @@ async def read_all_products():
 @app.post("/product", response_model=Product)
 async def create_product(product: Product):
     with Session(engine) as session:
-        exists = session.exec(select(Product).where(Product.name == product.name)).first() is not None
-        if not exists:
+        is_existing = session.exec(select(Product).where(Product.name == product.name)).first() is not None
+        if not is_existing:
             session.add(product)
             session.commit()
             session.refresh(product)
@@ -91,56 +91,24 @@ async def read_all_purchases():
 @app.post("/purchase", response_model=PurchasePublic)
 async def create_purchase(req: PurchasePublic):
     try:
-        # Log the incoming purchase data for debugging
         print(f"Received purchase data: {req.model_dump_json()}")
-        # Is this a new customer?
+
         with Session(engine) as session:
-            existed_customer = session.exec(select(Customer).where(Customer.email == req.customer.email)).first()
+            existing_customer = session.exec(select(Customer).where(Customer.email == req.customer.email)).first()
 
-        if not existed_customer: # New customer
-            with Session(engine) as session:
-                session.add(req.purchase)
-                session.add(req.customer)
-                session.add_all(req.item)
-                session.commit()
+        if existing_customer:
+            req.customer = existing_customer
 
-                session.add(PurchaseCustomerLink(
-                    purchase_id=req.purchase.id,
-                    customer_id=req.customer.id
-                ))
-                for item in req.item:
-                    session.add(PurchaseItemLink(
-                        purchase_id=req.purchase.id,
-                        item_id=item.id
-                    ))
-                session.commit()
+        with Session(engine) as session:
+            req.purchase.customer = req.customer
+            req.purchase.item = req.item
+            session.add(req.purchase)
+            session.commit()
+            session.refresh(req.purchase)
+            session.refresh(req.customer)
+            for item in req.item:
+                session.refresh(item)
 
-                session.refresh(req.purchase)
-                session.refresh(req.customer)
-                for item in req.item:
-                    session.refresh(item)
-
-        else:
-            with Session(engine) as session:
-                session.add(req.purchase)
-                session.add_all(req.item)
-                req.customer.id = existed_customer.id
-                session.commit()
-
-                session.add(PurchaseCustomerLink(
-                    purchase_id=req.purchase.id,
-                    customer_id=existed_customer.id
-                ))
-                for item in req.item:
-                    session.add(PurchaseItemLink(
-                        purchase_id=req.purchase.id,
-                        item_id=item.id
-                    ))
-                session.commit()
-
-                session.refresh(req.purchase)
-                for item in req.item:
-                    session.refresh(item)
         return req
 
     except Exception as e:

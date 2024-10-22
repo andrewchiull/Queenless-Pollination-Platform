@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Item, Product, Purchase, Customer, PurchasePublic, PurchaseCreate
+from .models import Item, Product, ProductCreate, ProductPublic, ProductUpdate, Purchase, Customer, PurchasePublic, PurchaseCreate
 
 RESULT_LIMIT = 1000
 
@@ -14,7 +14,6 @@ async def lifespan(app: FastAPI):
     # See: [Lifespan Events - FastAPI](https://fastapi.tiangolo.com/advanced/events/#lifespan)
     # Startup events:
     create_db_and_tables()
-    await add_initial_products()
     yield
     # Shutdown events:
     pass
@@ -25,113 +24,96 @@ def get_session():
 
 app = FastAPI(lifespan=lifespan)
 
-# Add initial products
-async def add_initial_products():
-    products: list[dict] = await read_local_products()
-    for product in products:
-        await create_product(Product.model_validate(product))
-
 @app.get("/")
 async def read_root():
     print("Hello! This is routing-backend. To use GUI, go to http://localhost:5001/docs")
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
-@app.get("/product/all", response_model=list[Product])
-async def read_all_products():
+@app.post("/product/", response_model=ProductPublic)
+async def create_product(*, session: Session = Depends(get_session), product: ProductCreate):
     try:
-        with Session(engine) as session:
-            products = session.exec(
-                select(Product)
-                .order_by(Product.id)
-                .limit(RESULT_LIMIT)
-            ).all()
-        return products
-    except Exception as e:
-        print("ERROR: fetching products")
-        print(e)
-        try:
-            print('Reading local products file instead...')
-            local_products = await read_local_products()
-            return local_products
-        except Exception as local_error:
-            error_msg = f"ERROR: reading local products file:\n{local_error}"
-            print(error_msg)
-            raise HTTPException(status_code=500, detail=error_msg)
-
-@app.post("/product", response_model=Product)
-async def create_product(product: Product):
-    try:
-        with Session(engine) as session:
-            is_existing = session.exec(
+        is_existing = session.exec(
             select(Product)
             .where(Product.name == product.name)
         ).first() is not None
-        if not is_existing:
-            session.add(product)
-            session.commit()
-            session.refresh(product)
+
+        if is_existing:
+            error_msg = f"ERROR: product already exists:\n{product.name}"
+            print(error_msg)
+            raise HTTPException(status_code=400, detail=error_msg)
+
+        db_product = Product.model_validate(product)
+        session.add(db_product)
+        session.commit()
+        session.refresh(db_product)
+        return db_product
+
+    except Exception as e:
+        error_msg = f"ERROR: create_product:\n{e}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+# Product CRUD methods
+
+@app.get("/product/", response_model=list[ProductPublic])
+async def read_products(
+        *,
+        session: Session = Depends(get_session),
+        offset: int = 0,
+        limit: int = Query(default=100, le=100)
+    ):
+    try:
+        products = session.exec(select(Product).offset(offset).limit(limit)).all()
+        return products
+    except Exception as e:
+        error_msg = f"ERROR: read_products:\n{e}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+@app.get("/product/{product_id}/", response_model=ProductPublic)
+async def read_product_by_id(*, session: Session = Depends(get_session), product_id: int):
+    try:
+        product = session.get(Product, product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
         return product
     except Exception as e:
-        error_msg = f"ERROR: creating product:\n{e}"
+        error_msg = f"ERROR: read_product_by_id:\n{e}"
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/purchase/{purchase_id}", response_model=PurchasePublic)
-async def read_purchase(purchase_id: int):
+@app.patch("/product/{product_id}/", response_model=ProductPublic)
+async def update_product_by_id(*, session: Session = Depends(get_session), product_id: int, product: ProductUpdate):
     try:
-        with Session(engine) as session:
-            purchase = session.exec(
-                select(Purchase)
-                .where(Purchase.id == purchase_id)
-            ).first()
-            return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
-    except ValueError as ve:
-        error_msg = f"ERROR: Invalid purchase ID format:\n{ve}"
-        print(error_msg)
-        raise HTTPException(status_code=400, detail=error_msg)
+        db_product = session.get(Product, product_id)
+        if not db_product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        product_data = product.model_dump(exclude_unset=True)
+        for key, value in product_data.items():
+            setattr(db_product, key, value)
+        session.add(db_product)
+        session.commit()
+        session.refresh(db_product)
+        return db_product
     except Exception as e:
-        error_msg = f"ERROR: fetching purchase:\n{e}"
+        error_msg = f"ERROR: update_product_by_id:\n{e}"
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/purchase/brief/all", response_model=list[Purchase])
-async def read_all_purchases_brief():
-    try:
-        with Session(engine) as session:
-            purchases = session.exec(
-                select(Purchase)
-                .order_by(Purchase.id)
-                .limit(RESULT_LIMIT)
-            ).all()
-        return purchases
-    except Exception as e:
-        error_msg = f"ERROR: fetching purchases:\n{e}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
 
-# Trailing slash is necessary for this endpoint to parse the query parameter correctly
-@app.get("/purchase/ids/", response_model=list[PurchasePublic])
-async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
-    try:
-        with Session(engine) as session:
-            purchases = session.exec(
-                select(Purchase)
-                .where(Purchase.id.in_(q))
-                .order_by(Purchase.id)
-                .limit(RESULT_LIMIT)
-            ).all()
-            return [PurchasePublic(id=p.id, description=p.description, customer=p.customer, item=p.item) for p in purchases]
-    except ValueError as ve:
-        error_msg = f"ERROR: Invalid purchase ID format:\n{ve}"
-        print(error_msg)
-        raise HTTPException(status_code=400, detail=error_msg)
-    except Exception as e:
-        error_msg = f"ERROR: fetching purchases by IDs:\n{e}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+@app.delete("/product/{product_id}/")
+def delete_product(*, session: Session = Depends(get_session), product_id: int):
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    session.delete(product)
+    session.commit()
+    return {"ok": True}
 
-@app.post("/purchase", response_model=PurchasePublic)
+# Purchase CRUD methods
+
+@app.post("/purchase/", response_model=PurchasePublic)
 async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_session)):
     try:
         print(f"Received purchase data: {req}")
@@ -156,9 +138,31 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-# Add testing purchases at startup
-@app.get("/testing/add_testing_purchases")
-async def add_testing_purchases(session: Session = Depends(get_session)):
+
+# Testing methods
+
+@app.get("/testing/add_testing_product/")
+async def add_testing_products(*, session: Session = Depends(get_session)):
+    result: list[Product] = []
+    products: list[dict] = await read_local_products()
+    for product in products:
+        res = await create_product(
+            product=ProductCreate.model_validate(product),
+            session=session
+        )
+        session.refresh(res)
+        result.append(res.model_copy(deep=True))
+    return result
+
+@app.get("/testing/add_testing_purchase/")
+async def add_testing_purchases(*, session: Session = Depends(get_session)):
+    result: list[PurchasePublic] = []
     purchases: list[dict] = await read_local_purchases()
     for purchase in purchases:
-        await create_purchase(PurchaseCreate.model_validate(purchase), session)
+        res = await create_purchase(
+            PurchaseCreate.model_validate(purchase),
+            session=session
+        )
+        session.refresh(res)
+        result.append(res.model_copy(deep=True))
+    return result

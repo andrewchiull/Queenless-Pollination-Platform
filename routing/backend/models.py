@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, Field, Relationship
 from .models_link import PurchaseItemLink, PurchaseCustomerLink
 
+# See: [Models with Relationships in FastAPI - SQLModel](https://sqlmodel.tiangolo.com/tutorial/fastapi/relationships/#models-with-relationships)
+
 # Product classes
 class ProductBase(SQLModel):
     name: str = Field(index=True)
@@ -13,6 +15,13 @@ class ProductCreate(ProductBase):
 class Product(ProductBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     item: list["Item"] = Relationship(back_populates="product")
+
+class ProductPublic(ProductBase):
+    id: int
+
+class ProductUpdate(ProductBase):
+    pass
+
 
 # Customer classes
 class CustomerBase(SQLModel):

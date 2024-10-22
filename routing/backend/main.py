@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Product, Purchase, Customer, PurchasePublic, RawRequest
+from .models import Item, Product, Purchase, Customer, PurchasePublic, PurchaseCreate
 
 RESULT_LIMIT = 1000
 
@@ -26,13 +26,13 @@ app = FastAPI(lifespan=lifespan)
 async def add_initial_products():
     products: list[dict] = await read_local_products()
     for product in products:
-        await create_product(Product(**product))
+        await create_product(Product.model_validate(product))
 
 # Add initial purchases
 async def add_initial_purchases():
     purchases: list[dict] = await read_local_purchases()
     for purchase in purchases:
-        await create_purchase(RawRequest(**purchase))
+        await create_purchase(PurchaseCreate.model_validate(purchase))
 
 @app.get("/")
 async def read_root():
@@ -135,20 +135,20 @@ async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
         raise HTTPException(status_code=500, detail=error_msg)
 
 @app.post("/purchase", response_model=PurchasePublic)
-async def create_purchase(req: RawRequest):
+async def create_purchase(req: PurchaseCreate):
     try:
         print(f"Received purchase data: {req}")
 
         with Session(engine) as session:
-            existing_customer = session.exec(select(Customer).where(Customer.email == req.customer.email)).first()
-
-            if existing_customer:
-                req.customer = existing_customer
+            existing_customer = session.exec(
+                select(Customer)
+                .where(Customer.email == req.customer.email)
+            ).first()
 
             db_purchase = Purchase(
                 description=req.description,
-                customer=req.customer,
-                item=req.item
+                customer=existing_customer or Customer.model_validate(req.customer),
+                item=[Item.model_validate(i) for i in req.item]
             )
 
             session.add(db_purchase)

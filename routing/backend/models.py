@@ -13,13 +13,17 @@ class PurchaseCustomerLink(SQLModel, table=True):
     purchase_id: int | None = Field(default=None, foreign_key="purchase.id", primary_key=True)
     customer_id: int | None = Field(default=None, foreign_key="customer.id", primary_key=True)
 
-class Customer(SQLModel, table=True):
-    __tablename__ = "customer"
-    id: int | None = Field(default=None, primary_key=True)
+class CustomerBase(SQLModel):
     name: str = Field(index=True)
     email: str = Field(index=True)
     address: str = Field(index=True)
 
+class CustomerCreate(CustomerBase):
+    pass
+
+class Customer(CustomerBase, table=True):
+    __tablename__ = "customer"
+    id: int | None = Field(default=None, primary_key=True)
     purchase: list["Purchase"] = Relationship(back_populates="customer", link_model=PurchaseCustomerLink)
 
 class PurchaseItemLink(SQLModel, table=True):
@@ -27,7 +31,14 @@ class PurchaseItemLink(SQLModel, table=True):
     purchase_id: int | None = Field(default=None, foreign_key="purchase.id", primary_key=True)
     item_id: int | None = Field(default=None, foreign_key="item.id", primary_key=True)
 
-class Item(SQLModel, table=True):
+class ItemBase(SQLModel):
+    quantity: int = Field(index=True)
+    product_id: int = Field(index=True, foreign_key="product.id")
+
+class ItemCreate(ItemBase):
+    pass
+
+class Item(ItemBase, table=True):
     __tablename__ = "item"
     id: int | None = Field(default=None, primary_key=True)
     quantity: int = Field(index=True)
@@ -39,6 +50,10 @@ class Item(SQLModel, table=True):
 class PurchaseBase(SQLModel):
     description: str = Field(index=True)
 
+class PurchaseCreate(PurchaseBase):
+    customer: CustomerCreate
+    item: list[ItemCreate]
+
 class Purchase(PurchaseBase, table=True):
     __tablename__ = "purchase"
     id: int | None = Field(default=None, primary_key=True)
@@ -48,11 +63,6 @@ class Purchase(PurchaseBase, table=True):
 
 class PurchasePublic(SQLModel):
     id: int
-    description: str
-    customer: Customer
-    item: list[Item]
-
-class RawRequest(SQLModel):
     description: str
     customer: Customer
     item: list[Item]

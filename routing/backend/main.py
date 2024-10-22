@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from typing import Annotated
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
@@ -88,6 +89,10 @@ async def read_purchase(purchase_id: int):
                 .where(Purchase.id == purchase_id)
             ).first()
             return PurchasePublic(purchase=purchase, customer=purchase.customer, item=purchase.item)
+    except ValueError as ve:
+        error_msg = f"ERROR: Invalid purchase ID format:\n{ve}"
+        print(error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
     except Exception as e:
         error_msg = f"ERROR: fetching purchase:\n{e}"
         print(error_msg)
@@ -108,18 +113,23 @@ async def read_all_purchases_brief():
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.post("/purchase/{purchase_ids}", response_model=list[PurchasePublic])
-async def read_purchases_by_ids(purchase_ids: list[int]):
+# Trailing slash is necessary for this endpoint to parse the query parameter correctly
+@app.get("/purchase/ids/", response_model=list[PurchasePublic])
+async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
     try:
         with Session(engine) as session:
             purchases = session.exec(
                 select(Purchase)
-                .where(Purchase.id.in_(purchase_ids))
+                .where(Purchase.id.in_(q))
                 .order_by(Purchase.id)
                 .limit(RESULT_LIMIT)
             ).all()
             print(purchases)
             return [PurchasePublic(purchase=p, customer=p.customer, item=p.item) for p in purchases]
+    except ValueError as ve:
+        error_msg = f"ERROR: Invalid purchase ID format:\n{ve}"
+        print(error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
     except Exception as e:
         error_msg = f"ERROR: fetching purchases by IDs:\n{e}"
         print(error_msg)

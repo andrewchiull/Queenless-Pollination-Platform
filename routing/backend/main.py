@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
@@ -15,10 +15,13 @@ async def lifespan(app: FastAPI):
     # Startup events:
     create_db_and_tables()
     await add_initial_products()
-    await add_initial_purchases()
     yield
     # Shutdown events:
     pass
+
+def get_session():
+    with Session(engine) as session:
+        yield session
 
 app = FastAPI(lifespan=lifespan)
 
@@ -27,12 +30,6 @@ async def add_initial_products():
     products: list[dict] = await read_local_products()
     for product in products:
         await create_product(Product.model_validate(product))
-
-# Add initial purchases
-async def add_initial_purchases():
-    purchases: list[dict] = await read_local_purchases()
-    for purchase in purchases:
-        await create_purchase(PurchaseCreate.model_validate(purchase))
 
 @app.get("/")
 async def read_root():
@@ -135,34 +132,33 @@ async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
         raise HTTPException(status_code=500, detail=error_msg)
 
 @app.post("/purchase", response_model=PurchasePublic)
-async def create_purchase(req: PurchaseCreate):
+async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_session)):
     try:
         print(f"Received purchase data: {req}")
 
-        with Session(engine) as session:
-            existing_customer = session.exec(
-                select(Customer)
-                .where(Customer.email == req.customer.email)
-            ).first()
+        existing_customer = session.exec(
+            select(Customer)
+            .where(Customer.email == req.customer.email)
+        ).first()
 
-            db_purchase = Purchase(
-                description=req.description,
-                customer=existing_customer or Customer.model_validate(req.customer),
-                item=[Item.model_validate(i) for i in req.item]
-            )
+        db_purchase = Purchase(
+            description=req.description,
+            customer=existing_customer or Customer.model_validate(req.customer),
+            item=[Item.model_validate(i) for i in req.item]
+        )
 
-            session.add(db_purchase)
-
-            session.commit()
-            session.refresh(db_purchase)
-            session.refresh(db_purchase.customer)
-            for item in db_purchase.item:
-                session.refresh(item)
-
+        session.add(db_purchase)
+        session.commit()
         return db_purchase
 
     except Exception as e:
         error_msg = f"ERROR: submitting purchase:\n{e}"
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
-    
+
+# Add testing purchases at startup
+@app.get("/testing/add_testing_purchases")
+async def add_testing_purchases(session: Session = Depends(get_session)):
+    purchases: list[dict] = await read_local_purchases()
+    for purchase in purchases:
+        await create_purchase(PurchaseCreate.model_validate(purchase), session)

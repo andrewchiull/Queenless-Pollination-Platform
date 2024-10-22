@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Product, Purchase, Customer, PurchasePublic
+from .models import Product, Purchase, Customer, PurchasePublic, RawRequest
 
 RESULT_LIMIT = 1000
 
@@ -32,7 +32,7 @@ async def add_initial_products():
 async def add_initial_purchases():
     purchases: list[dict] = await read_local_purchases()
     for purchase in purchases:
-        await create_purchase(PurchasePublic(**purchase))
+        await create_purchase(RawRequest(**purchase))
 
 @app.get("/")
 async def read_root():
@@ -124,8 +124,7 @@ async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
                 .order_by(Purchase.id)
                 .limit(RESULT_LIMIT)
             ).all()
-            print(purchases)
-            return [PurchasePublic(purchase=p, customer=p.customer, item=p.item) for p in purchases]
+            return [PurchasePublic(id=p.id, description=p.description, customer=p.customer, item=p.item) for p in purchases]
     except ValueError as ve:
         error_msg = f"ERROR: Invalid purchase ID format:\n{ve}"
         print(error_msg)
@@ -136,28 +135,31 @@ async def read_purchases_by_ids(q: Annotated[list[int] | None, Query()] = None):
         raise HTTPException(status_code=500, detail=error_msg)
 
 @app.post("/purchase", response_model=PurchasePublic)
-async def create_purchase(req: PurchasePublic):
+async def create_purchase(req: RawRequest):
     try:
-        print(f"Received purchase data: {req.model_dump_json()}")
+        print(f"Received purchase data: {req}")
 
         with Session(engine) as session:
             existing_customer = session.exec(select(Customer).where(Customer.email == req.customer.email)).first()
 
-        if existing_customer:
-            req.customer = existing_customer
+            if existing_customer:
+                req.customer = existing_customer
 
-        with Session(engine) as session:
-            req.purchase.customer = req.customer
-            req.purchase.item = req.item
-            session.add(req.purchase)
+            db_purchase = Purchase(
+                description=req.description,
+                customer=req.customer,
+                item=req.item
+            )
+
+            session.add(db_purchase)
 
             session.commit()
-            session.refresh(req.purchase)
-            session.refresh(req.customer)
-            for item in req.item:
+            session.refresh(db_purchase)
+            session.refresh(db_purchase.customer)
+            for item in db_purchase.item:
                 session.refresh(item)
 
-        return req
+        return db_purchase
 
     except Exception as e:
         error_msg = f"ERROR: submitting purchase:\n{e}"

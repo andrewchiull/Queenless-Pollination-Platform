@@ -36,15 +36,23 @@ class Item(SQLModel, table=True):
     product: Product = Relationship(back_populates="item")
     purchase: "Purchase" = Relationship(back_populates="item", link_model=PurchaseItemLink)
 
-class Purchase(SQLModel, table=True):
+class PurchaseBase(SQLModel):
+    description: str = Field(index=True)
+
+class Purchase(PurchaseBase, table=True):
     __tablename__ = "purchase"
     id: int | None = Field(default=None, primary_key=True)
-    description: str = Field(default="XYZ", index=True)
 
     customer: Customer = Relationship(back_populates="purchase", link_model=PurchaseCustomerLink)
     item: list["Item"] = Relationship(back_populates="purchase", link_model=PurchaseItemLink)
 
 class PurchasePublic(SQLModel):
-    purchase: Purchase
+    id: int
+    description: str
+    customer: Customer
+    item: list[Item]
+
+class RawRequest(SQLModel):
+    description: str
     customer: Customer
     item: list[Item]

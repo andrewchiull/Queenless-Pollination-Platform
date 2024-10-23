@@ -40,23 +40,33 @@ const PurchaseForm = ({ products, quantities, setQuantities }: PurchaseFormProps
       product_id: product.id,
       quantity: quantities[product.id] || 0
     }));
-    const description = products
+
+    const details = products
       .filter(product => quantities[product.id])
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
 
-    axios.post('/api/purchase/', {
-      customer: {
-        name, email, address
-      },
-      purchase: {
-        description: `${email}: ${description}`
-      },
-      item: item
-    })
+    function requestBody(): { description: string; customer: { name: string; email: string; address: string; }; item: { product_id: number; quantity: number; }[]; } | undefined {
+      return {
+        description: `姓名：${name}\n電子郵件：${email}\n地址：${address}\n訂單內容：${details}`,
+        customer: {
+          name, email, address
+        },
+        item: item
+      };
+    }
+    axios.post('/api/purchase/', requestBody())
       .then(response => {
         console.log(response);
-        toast.success(`訂單已成功提交！姓名：${name}，電子郵件：${email}，地址：${address}，訂單內容：${description}`, {
+        toast.success(
+          <div>
+            訂單已成功提交！<br />
+            姓名：{name}<br />
+            電子郵件：{email}<br />
+            地址：{address}<br />
+            訂單內容：{details}
+          </div>,
+          {
           position: 'top-center',
           autoClose: false,
           closeOnClick: false,
@@ -73,6 +83,7 @@ const PurchaseForm = ({ products, quantities, setQuantities }: PurchaseFormProps
       .catch(error => {
         toast.error("提交訂單時出錯，請稍後再試！");
         console.error(error);
+        console.log(requestBody());
       });
 
     // Clear form fields

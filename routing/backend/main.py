@@ -59,6 +59,7 @@ async def read_root():
 @app.post("/product/", response_model=ProductPublic)
 async def create_product(*, session: Session = Depends(get_session), product: ProductCreate):
     try:
+        print(f"Received product data: {product}")
         is_existing = session.exec(
             select(Product)
             .where(Product.name == product.name)

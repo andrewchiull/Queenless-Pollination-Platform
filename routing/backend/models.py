@@ -70,5 +70,8 @@ class PurchasePublic(SQLModel):
     description: str
     customer: Customer
     item: list[Item]
+    
+class PurchaseUpdate(PurchaseBase):
+    pass
 
 # TODO: Add a purchase summary that includes the total price of the purchase

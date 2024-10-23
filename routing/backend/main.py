@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Item, Product, ProductCreate, ProductPublic, ProductUpdate, Purchase, Customer, PurchasePublic, PurchaseCreate
+from .models import Item, Product, ProductCreate, ProductPublic, ProductUpdate, Purchase, Customer, PurchasePublic, PurchaseCreate, PurchaseUpdate
 
 RESULT_LIMIT = 1000
 
@@ -30,6 +30,8 @@ async def read_root():
     print("Redirecting to /docs")
     return RedirectResponse(url="/docs")
 
+# Product CRUD methods
+
 @app.post("/product/", response_model=ProductPublic)
 async def create_product(*, session: Session = Depends(get_session), product: ProductCreate):
     try:
@@ -53,8 +55,6 @@ async def create_product(*, session: Session = Depends(get_session), product: Pr
         error_msg = f"ERROR: create_product:\n{e}"
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
-
-# Product CRUD methods
 
 @app.get("/product/", response_model=list[ProductPublic])
 async def read_products(
@@ -118,6 +118,10 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
     try:
         print(f"Received purchase data: {req}")
 
+        # Check if customer exists by email
+        # TODO: Maybe Customer should have a unique constraint on email
+        #       and we could use get() instead of exec()
+        # TODO: Maybe a customer with the same email but different name/address is valid?
         existing_customer = session.exec(
             select(Customer)
             .where(Customer.email == req.customer.email)
@@ -134,10 +138,63 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
         return db_purchase
 
     except Exception as e:
-        error_msg = f"ERROR: submitting purchase:\n{e}"
+        error_msg = f"ERROR: create_purchase:\n{e}"
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
+@app.get("/purchase/", response_model=list[PurchasePublic])
+async def read_purchases(
+        *,
+        session: Session = Depends(get_session),
+        offset: int = 0,
+        limit: int = Query(default=100, le=100)
+    ):
+    try:
+        purchases = session.exec(select(Purchase).offset(offset).limit(limit)).all()
+        return purchases
+    except Exception as e:
+        error_msg = f"ERROR: read_purchases:\n{e}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+@app.get("/purchase/{purchase_id}/", response_model=PurchasePublic)
+async def read_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int):
+    try:
+        purchase = session.get(Purchase, purchase_id)
+        if not purchase:
+            raise HTTPException(status_code=404, detail="Purchase not found")
+        return purchase
+    except Exception as e:
+        error_msg = f"ERROR: read_purchase_by_id:\n{e}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+@app.patch("/purchase/{purchase_id}/", response_model=PurchasePublic)
+async def update_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int, purchase: PurchaseUpdate):
+    try:
+        db_purchase = session.get(Purchase, purchase_id)
+        if not db_purchase:
+            raise HTTPException(status_code=404, detail="Purchase not found")
+        purchase_data = purchase.model_dump(exclude_unset=True)
+        for key, value in purchase_data.items():
+            setattr(db_purchase, key, value)
+        session.add(db_purchase)
+        session.commit()
+        session.refresh(db_purchase)
+        return db_purchase
+    except Exception as e:
+        error_msg = f"ERROR: update_purchase_by_id:\n{e}"
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+
+@app.delete("/purchase/{purchase_id}/")
+def delete_purchase(*, session: Session = Depends(get_session), purchase_id: int):
+    purchase = session.get(Purchase, purchase_id)
+    if not purchase:
+        raise HTTPException(status_code=404, detail="Purchase not found")
+    session.delete(purchase)
+    session.commit()
+    return {"ok": True}
 
 # Testing methods
 

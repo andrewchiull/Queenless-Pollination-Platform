@@ -45,7 +45,7 @@ const PurchaseForm = ({ products, quantities, setQuantities }: PurchaseFormProps
       .map(product => `${product.name} x${quantities[product.id]}`)
       .join(', ');
 
-    axios.post('/api/purchase', {
+    axios.post('/api/purchase/', {
       customer: {
         name, email, address
       },

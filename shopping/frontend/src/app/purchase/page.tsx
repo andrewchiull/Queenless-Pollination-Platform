@@ -23,7 +23,7 @@ const PurchasePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
 
   useEffect(() => {
-    axios.get('/api/product/all').then(response => {
+    axios.get('/api/product/').then(response => {
       setProducts(response.data);
       setLoading(false); // Set loading to false after data is fetched
     }).catch(error => {

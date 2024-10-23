@@ -10,7 +10,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - queenless_pollination_platform
+      - network
     healthcheck:
       # Check if the database is ready
       test: ["CMD", "mysql", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SHOW DATABASES"]
@@ -19,38 +19,38 @@ services:
       retries: 30
       # See [mysql - Docker compose wait for database service initialisation - Stack Overflow](https://stackoverflow.com/questions/53407287/docker-compose-wait-for-database-service-initialisation)
 
-  # shopping-frontend:
-  #   build:
-  #     context: ./shopping/frontend
-  #     args:
-  #       - API_URL=http://routing-backend:5001/
-  #       - NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - routing-backend
-  #   networks:
-  #     - queenless_pollination_platform
+  shopping-frontend:
+    build:
+      context: ./shopping/frontend
+      args:
+        - API_URL=http://routing-backend:5001/
+        - NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - routing-backend
+    networks:
+      - network
 
-  # routing-backend:
-  #   build:
-  #     context: ./routing/backend
-  #   ports:
-  #     - "5001:5001"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   environment:
-  #     DB_HOST: db
-  #     DB_USER: root
-  #     DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-  #     DB_NAME: queenless_pollination_platform
-  #   networks:
-  #     - queenless_pollination_platform
+  routing-backend:
+    build:
+      context: ./routing/backend
+    ports:
+      - "5001:5001"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: queenless_pollination_platform
+    networks:
+      - network
 
 volumes:
   mysql-data:
 
 networks:
-  queenless_pollination_platform:
+  network:
     driver: bridge

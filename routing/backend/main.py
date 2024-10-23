@@ -17,7 +17,7 @@ from .models import (
     PurchaseCreate,
     PurchasePublic,
     PurchasePublicDetailed,
-    PurchaseUpdate,
+    PurchaseAddressPublic,
 )
 
 RESULT_LIMIT = 1000
@@ -175,15 +175,18 @@ async def read_purchases(
         offset: int = Query(default=0, description="Offset for pagination"),
         limit: int = Query(default=100, le=100, description="Limit for pagination")
     ):
+    """ ## Get a list of purchases with pagination.
     """
-    Get a list of purchases with pagination.
-    """
-    return session.exec(select(Purchase).offset(offset).limit(limit)).all()
+    return session.exec(
+        select(Purchase)
+        .offset(offset)
+        .limit(limit)
+        .order_by(Purchase.id)
+    ).all()
 
 @app.get("/purchase/id/", response_model=list[PurchasePublicDetailed | None])
 async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
-    """
-    Get a list of purchases by their IDs.
+    """ ## Get a list of purchases by their IDs.
     If a purchase is not found, it will be included in the response with `None`.
     """
 
@@ -191,6 +194,16 @@ async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="
         raise HTTPException(status_code=400, detail=f"Purchase ID is required.")
 
     return [session.get(Purchase, id) for id in q]
+
+@app.get("/purchase/id/address/", response_model=list[PurchaseAddressPublic | None])
+async def read_purchase_addresses_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
+    """ ## Get a list of addresses of purchases by their IDs.
+    If a purchase is not found, the corresponding address will be `None`.
+    """
+    return [PurchaseAddressPublic(
+        purchase_id=id,
+        address=session.get(Purchase, id).customer.address
+    ) for id in q]
 
 # Testing methods
 # Called by the frontend to populate the database with testing data

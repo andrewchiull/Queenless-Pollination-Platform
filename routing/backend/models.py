@@ -93,3 +93,7 @@ class PurchaseUpdate(SQLModel):
     description: str | None = None
     customer: CustomerCreate | None = None
     item: list[ItemCreate] | None = []
+
+class PurchaseAddressPublic(SQLModel):
+    purchase_id: int
+    address: str

@@ -1,15 +1,14 @@
 module.exports = {
   apps: [
     {
-      name: 'shopping-backend',
-      script: 'cd shopping/backend && yarn dev',
+      name: 'database',
+      script: 'cd db && docker compose up -d --build db',
+      watch: false,
+    },
+    {
+      name: 'routing-backend',
+      script: 'cd routing/backend && fastapi dev --port 5001',
       watch: true,
-      instances: 'max', // Use all available CPU cores
-      exec_mode: 'cluster', // Run in cluster mode
-      env: {
-        NODE_ENV: 'development',
-        PORT: 5000,
-      },
     },
     {
       name: 'shopping-frontend',
@@ -19,11 +18,6 @@ module.exports = {
         NODE_ENV: 'development',
         PORT: 3000,
       },
-    },
-    {
-      name: 'database',
-      script: 'cd db && docker compose up',
-      watch: false,
     },
   ],
 };

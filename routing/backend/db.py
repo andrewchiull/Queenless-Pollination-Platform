@@ -1,8 +1,10 @@
 import json
 import os
+import time
 from dotenv import load_dotenv
 from sqlmodel import SQLModel, create_engine
 from sqlalchemy.pool import NullPool
+from sqlalchemy.exc import OperationalError
 
 load_dotenv()
 DB_HOST = os.getenv("DB_HOST") or "localhost"
@@ -15,6 +17,23 @@ CHARSET = "utf8mb4"
 DB_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}?charset={CHARSET}"
 engine = create_engine(DB_URL, echo=True, poolclass=NullPool)
 
+NUM_RETRIES=5
+RETRY_INTERVAL=5
+
+# Retry
+def retry_on_operational_error(func):
+    def wrapper(*args, **kwargs):
+        for _retry in range(NUM_RETRIES):
+            try:
+                return func(*args, **kwargs)
+            except OperationalError as e:
+                print(e)
+                print(f"{func.__name__} failed. {NUM_RETRIES - _retry} retries left...waiting {RETRY_INTERVAL} seconds...")
+                time.sleep(RETRY_INTERVAL)
+        raise Exception(f"{func.__name__} failed after {NUM_RETRIES} retries!")
+    return wrapper
+
+@retry_on_operational_error
 def create_db_and_tables():
     print(DB_URL)
     SQLModel.metadata.create_all(engine)

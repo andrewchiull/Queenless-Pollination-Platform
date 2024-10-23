@@ -1,11 +1,6 @@
 module.exports = {
   apps: [
     {
-      name: 'database',
-      script: 'cd db && docker compose up -d --build db',
-      watch: false,
-    },
-    {
       name: 'routing-backend',
       script: 'cd routing/backend && fastapi dev --port 5001',
       watch: true,

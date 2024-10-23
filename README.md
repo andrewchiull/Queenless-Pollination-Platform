@@ -62,6 +62,18 @@ docker compose up -d --no-deps --build <service_name>
 
 ## Development
 
+To reset the database:
+
+```bash
+docker-compose down -v; docker-compose up -d --build db
+```
+
+To reset the PM2 process (restart the application):
+
+```bash
+pm2 delete all; pm2 start ecosystem.config.js
+```
+
 ### 1. shopping-frontend:
 
 The most important part `PurchaseForm` is located in `shopping/frontend/src/app/purchase/components/PurchaseForm.tsx`.

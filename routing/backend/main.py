@@ -5,7 +5,19 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session, select
 
 from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
-from .models import Item, Product, ProductCreate, ProductPublic, ProductUpdate, Purchase, Customer, PurchasePublic, PurchaseCreate, PurchaseUpdate
+from .models import (
+    Product,
+    ProductCreate,
+    ProductPublic,
+    ProductUpdate,
+    Item,
+    Customer,
+    Purchase,
+    PurchaseCreate,
+    PurchasePublic,
+    PurchasePublicDetailed,
+    PurchaseUpdate,
+)
 
 RESULT_LIMIT = 1000
 
@@ -113,7 +125,7 @@ def delete_product(*, session: Session = Depends(get_session), product_id: int):
 
 # Purchase CRUD methods
 
-@app.post("/purchase/", response_model=PurchasePublic)
+@app.post("/purchase/", response_model=PurchasePublicDetailed)
 async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_session)):
     try:
         print(f"Received purchase data: {req}")
@@ -142,7 +154,7 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/purchase/", response_model=list[PurchasePublic])
+@app.get("/purchase/", response_model=list[PurchasePublicDetailed])
 async def read_purchases(
         *,
         session: Session = Depends(get_session),
@@ -157,7 +169,7 @@ async def read_purchases(
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/purchase/{purchase_id}/", response_model=PurchasePublic)
+@app.get("/purchase/{purchase_id}/", response_model=PurchasePublicDetailed)
 async def read_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int):
     try:
         purchase = session.get(Purchase, purchase_id)
@@ -169,7 +181,7 @@ async def read_purchase_by_id(*, session: Session = Depends(get_session), purcha
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.patch("/purchase/{purchase_id}/", response_model=PurchasePublic)
+@app.patch("/purchase/{purchase_id}/", response_model=PurchasePublicDetailed)
 async def update_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int, purchase: PurchaseUpdate):
     try:
         db_purchase = session.get(Purchase, purchase_id)

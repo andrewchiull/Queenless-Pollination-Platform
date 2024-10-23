@@ -1,6 +1,6 @@
 [
     {
-        "description": "purchase #1 by customer #1 \"呀哈哈\": 小蜂箱 x 1, 大蜂箱 x 2",
+        "description": "by customer #1 \"呀哈哈\": 小蜂箱 x 1, 大蜂箱 x 2",
         "customer": {
             "name": "呀哈哈",
             "email": "yahaha@test.com",
@@ -18,7 +18,7 @@
         ]
     },
     {
-        "description": "purchase #2 by customer #2 \"嗚啦啦\": 小蜂箱 x 2, 大蜂箱 x 1",
+        "description": "by customer #2 \"嗚啦啦\": 小蜂箱 x 2, 大蜂箱 x 1",
         "customer": {
             "name": "嗚啦啦",
             "email": "wulala@test.com",
@@ -36,7 +36,7 @@
         ]
     },
     {
-        "description": "purchase #3 by customer #1 \"呀哈哈\": 小蜂箱 x 3, 大蜂箱 x 3",
+        "description": "by customer #1 \"呀哈哈\": 小蜂箱 x 3, 大蜂箱 x 3",
         "customer": {
             "name": "呀哈哈",
             "email": "yahaha@test.com",

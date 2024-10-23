@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -136,7 +137,7 @@ def delete_product(*, session: Session = Depends(get_session), product_id: int):
     session.commit()
     return {"ok": True}
 
-# Purchase CRUD methods
+# Purchase methods
 
 @app.post("/purchase/", response_model=PurchasePublicDetailed)
 async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_session)):
@@ -171,57 +172,28 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
 async def read_purchases(
         *,
         session: Session = Depends(get_session),
-        offset: int = 0,
-        limit: int = Query(default=100, le=100)
+        offset: int = Query(default=0, description="Offset for pagination"),
+        limit: int = Query(default=100, le=100, description="Limit for pagination")
     ):
-    try:
-        purchases = session.exec(select(Purchase).offset(offset).limit(limit)).all()
-        return purchases
-    except Exception as e:
-        error_msg = f"ERROR: read_purchases:\n{e}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+    """
+    Get a list of purchases with pagination.
+    """
+    return session.exec(select(Purchase).offset(offset).limit(limit)).all()
 
-@app.get("/purchase/{purchase_id}/", response_model=PurchasePublicDetailed)
-async def read_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int):
-    try:
-        purchase = session.get(Purchase, purchase_id)
-        if not purchase:
-            raise HTTPException(status_code=404, detail="Purchase not found")
-        return purchase
-    except Exception as e:
-        error_msg = f"ERROR: read_purchase_by_id:\n{e}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+@app.get("/purchase/id/", response_model=list[PurchasePublicDetailed | None])
+async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
+    """
+    Get a list of purchases by their IDs.
+    If a purchase is not found, it will be included in the response with `None`.
+    """
 
-@app.patch("/purchase/{purchase_id}/", response_model=PurchasePublicDetailed)
-async def update_purchase_by_id(*, session: Session = Depends(get_session), purchase_id: int, purchase: PurchaseUpdate):
-    try:
-        db_purchase = session.get(Purchase, purchase_id)
-        if not db_purchase:
-            raise HTTPException(status_code=404, detail="Purchase not found")
-        purchase_data = purchase.model_dump(exclude_unset=True)
-        for key, value in purchase_data.items():
-            setattr(db_purchase, key, value)
-        session.add(db_purchase)
-        session.commit()
-        session.refresh(db_purchase)
-        return db_purchase
-    except Exception as e:
-        error_msg = f"ERROR: update_purchase_by_id:\n{e}"
-        print(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+    if q is None:
+        raise HTTPException(status_code=400, detail=f"Purchase ID is required.")
 
-@app.delete("/purchase/{purchase_id}/")
-def delete_purchase(*, session: Session = Depends(get_session), purchase_id: int):
-    purchase = session.get(Purchase, purchase_id)
-    if not purchase:
-        raise HTTPException(status_code=404, detail="Purchase not found")
-    session.delete(purchase)
-    session.commit()
-    return {"ok": True}
+    return [session.get(Purchase, id) for id in q]
 
 # Testing methods
+# Called by the frontend to populate the database with testing data
 
 @app.get("/testing/add_testing_product/")
 async def add_testing_products(*, session: Session = Depends(get_session)):

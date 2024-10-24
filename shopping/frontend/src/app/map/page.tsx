@@ -274,16 +274,20 @@ export default function MapPage() {
       <div 
         style={{
           position: 'absolute',
-          top: '10px',
-          left: '10px',
+          top: '2rem',
+          left: '2rem',
           zIndex: 1,
           backgroundColor: 'white',
-          padding: '10px',
+          padding: '5px',
           borderRadius: '5px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
         }}
       >
-        <input ref={IdsInputRef} type="text" placeholder="Enter Purchase IDs" />
+        <input ref={IdsInputRef} type="text" placeholder="Enter Purchase IDs"
+          style={{
+            margin: '5px'
+          }}
+        />
         <button onClick={() => {
           // filter out negative numbers and empty strings
           setIds(() => {
@@ -292,7 +296,11 @@ export default function MapPage() {
               .filter((num: number) => num > 0)
               || [];
           });
-        }}>Submit</button>
+        }}
+        style={{
+          margin: '5px'
+        }}
+        >Submit</button>
       </div>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100vh' }} />
       <style jsx global>{`

@@ -50,3 +50,9 @@ async def read_local_purchases():
     with open(file_path, 'r') as f:
         res = json.load(f)
         return res
+
+async def read_local_universities():
+    file_path = os.path.join(os.path.dirname(__file__), 'data', 'universities.json')
+    with open(file_path, 'r') as f:
+        res = json.load(f)
+        return res

@@ -94,6 +94,11 @@ class PurchaseUpdate(SQLModel):
     customer: CustomerCreate | None = None
     item: list[ItemCreate] | None = []
 
+class LatLon(SQLModel):
+    lat: float
+    lon: float
+
 class PurchaseAddressPublic(SQLModel):
     purchase_id: int
-    address: str
+    address: str | None
+    latlon: LatLon | None

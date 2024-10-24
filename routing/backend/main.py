@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Body, Depends, FastAPI, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 
-from .db import engine, create_db_and_tables, read_local_products, read_local_purchases
+from .db import engine, create_db_and_tables, read_local_products, read_local_purchases, read_local_universities
 from .models import (
+    LatLon,
     Product,
     ProductCreate,
     ProductPublic,
@@ -195,15 +196,20 @@ async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="
 
     return [session.get(Purchase, id) for id in q]
 
-@app.get("/purchase/id/address/", response_model=list[PurchaseAddressPublic | None])
+@app.get("/purchase/id/address/", response_model=list[PurchaseAddressPublic])
 async def read_purchase_addresses_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
     """ ## Get a list of addresses of purchases by their IDs.
     If a purchase is not found, the corresponding address will be `None`.
     """
-    return [PurchaseAddressPublic(
-        purchase_id=id,
-        address=session.get(Purchase, id).customer.address
-    ) for id in q]
+    result: list[PurchaseAddressPublic] = []
+    for id in q:
+        purchase = session.get(Purchase, id)
+        result.append(PurchaseAddressPublic(
+            purchase_id=id,
+            address=purchase.customer.address if purchase else None,
+            latlon=None
+        ))
+    return result
 
 # Testing methods
 # Called by the frontend to populate the database with testing data
@@ -233,3 +239,18 @@ async def add_testing_purchases(*, session: Session = Depends(get_session)):
         session.refresh(res)
         result.append(res.model_copy(deep=True))
     return result
+
+@app.post("/testing/address_to_latlon/")
+async def testing_address_to_latlon(body: Annotated[list[PurchaseAddressPublic] | None, Body(description="List of purchase addresses")] = None, *, session: Session = Depends(get_session)):
+    unis: list[dict] = await read_local_universities()
+    mapping: dict[str, tuple[float, float]] = {uni["address"]: uni["latlon"] for uni in unis}
+
+    for address in body:
+        address.latlon = mapping[address.address] if address.address else None
+    return body
+
+# get purchase id to latlon
+@app.get("/testing/latlon_from_purchase_id/")
+async def testing_latlon_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
+    addresses = await read_purchase_addresses_by_id(q, session=session)
+    return await testing_address_to_latlon(addresses, session=session)

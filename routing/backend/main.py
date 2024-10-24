@@ -193,7 +193,7 @@ async def read_purchases(
     ).all()
 
 @app.get("/purchase/id/", response_model=list[PurchasePublicDetailed | None])
-async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
+async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs", gt=0)] = None, *, session: Session = Depends(get_session)):
     """ ## Get a list of purchases by their IDs.
     If a purchase is not found, it will be included in the response with `None`.
     """

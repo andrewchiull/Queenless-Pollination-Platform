@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -41,12 +41,56 @@ export default function MapPage() {
   let keepTrack: any[] = [];
 
   // Initial dropoff locations
-  const initialDropoffs: [number, number][] = [
-    [121.537, 25.019], // 國立臺灣大學
-    [121.748, 24.747], // 國立宜蘭大學
-    [120.674, 24.125], // 國立中興大學
-    [120.426, 23.480], // 國立嘉義大學
-    [120.597, 22.656], // 國立屏東科技大學
+  type Dropoff = {
+    address: string;
+    email: string;
+    lat: number;
+    id: number;
+    name: string;
+    lon: number;
+  }
+
+  const initialDropoffs: Dropoff[] = [
+      {
+          address: "台北市大安區羅斯福路四段1號",
+          email: "ntu@ntu.edu.tw",
+          lat: 25.019,
+          id: 4,
+          name: "國立臺灣大學",
+          lon: 121.537
+      },
+      {
+          address: "台中市南區國光路250號",
+          email: "nchu@nchu.edu.tw",
+          lat: 24.125,
+          id: 5,
+          name: "國立中興大學",
+          lon: 120.674
+      },
+      {
+          address: "嘉義市東區學府路300號",
+          email: "cycu@cycu.edu.tw",
+          lat: 23.466,
+          id: 6,
+          name: "國立嘉義大學",
+          lon: 120.485
+      },
+      {
+          address: "屏東縣內埔鄉學府路1號",
+          email: "npu@npu.edu.tw",
+          lat: 22.656,
+          id: 7,
+          name: "國立屏東科技大學",
+          lon: 120.597
+      },
+      {
+          address: "宜蘭縣宜蘭市神農路一段1號",
+          email: "niu@niu.edu.tw",
+          lat: 24.747,
+          id: 8,
+          name: "國立宜蘭大學",
+          lon: 121.748
+      }
   ];
 
   useEffect(() => {
@@ -161,7 +205,7 @@ export default function MapPage() {
 
       // Add initial dropoffs
       initialDropoffs.forEach(async (location) => {
-        await addWaypoint(new mapboxgl.LngLat(location[0], location[1]));
+        await addWaypoint(new mapboxgl.LngLat(location.lon, location.lat));
         updateDropoffs(dropoffs);
       });
 

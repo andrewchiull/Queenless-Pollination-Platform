@@ -10,11 +10,13 @@ dotenv.config();
 
 export default function MapPage() {
 
+  const [initialDropoffs, setInitialDropoffs] = useState<Dropoff[]>([]);
+
   useEffect(() => {
     const ids = [4, 5, 6, 7, 8];
     const query = `?q=${ids.join('&q=')}`;
     axios.get(`/api/testing/customer_from_purchase_id/${query}`).then(response => {
-      console.log(response.data);
+      setInitialDropoffs(response.data);
     }).catch(error => {
       console.error("There was an error fetching the products!", error);
     });
@@ -50,50 +52,8 @@ export default function MapPage() {
     lon: number;
   }
 
-  const initialDropoffs: Dropoff[] = [
-      {
-          address: "台北市大安區羅斯福路四段1號",
-          email: "ntu@ntu.edu.tw",
-          lat: 25.019,
-          id: 4,
-          name: "國立臺灣大學",
-          lon: 121.537
-      },
-      {
-          address: "台中市南區國光路250號",
-          email: "nchu@nchu.edu.tw",
-          lat: 24.125,
-          id: 5,
-          name: "國立中興大學",
-          lon: 120.674
-      },
-      {
-          address: "嘉義市東區學府路300號",
-          email: "cycu@cycu.edu.tw",
-          lat: 23.466,
-          id: 6,
-          name: "國立嘉義大學",
-          lon: 120.485
-      },
-      {
-          address: "屏東縣內埔鄉學府路1號",
-          email: "npu@npu.edu.tw",
-          lat: 22.656,
-          id: 7,
-          name: "國立屏東科技大學",
-          lon: 120.597
-      },
-      {
-          address: "宜蘭縣宜蘭市神農路一段1號",
-          email: "niu@niu.edu.tw",
-          lat: 24.747,
-          id: 8,
-          name: "國立宜蘭大學",
-          lon: 121.748
-      }
-  ];
-
   useEffect(() => {
+    if (initialDropoffs.length === 0) return; // Wait for initialDropoffs to be set
     if (!mapContainerRef.current) return;
     if (map.current) return; // Initialize map only once
 
@@ -215,7 +175,7 @@ export default function MapPage() {
         updateDropoffs(dropoffs);
       });
     });
-  }, []);
+  }, [initialDropoffs]); // Wait for initialDropoffs to be set
 
   async function addWaypoint(lngLat: mapboxgl.LngLat) {
     const pt = turf.point([lngLat.lng, lngLat.lat], {

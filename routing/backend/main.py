@@ -68,7 +68,7 @@ async def create_product(*, session: Session = Depends(get_session), product: Pr
         ).first() is not None
 
         if is_existing:
-            error_msg = f"ERROR: product already exists:\n{product.name}"
+            error_msg = f"ERROR: product already exists: {product.name}"
             print(error_msg)
             raise HTTPException(status_code=400, detail=error_msg)
 
@@ -91,8 +91,8 @@ async def read_products(
         limit: int = Query(default=100, le=100)
     ):
     try:
-        products = session.exec(select(Product).offset(offset).limit(limit)).all()
-        return products
+        products = session.exec(select(Product).offset(offset).limit(limit).order_by(Product.id)).all()
+        return products if products else []
     except Exception as e:
         error_msg = f"ERROR: read_products:\n{e}"
         print(error_msg)
@@ -226,12 +226,17 @@ async def add_testing_products(*, session: Session = Depends(get_session)):
     result: list[Product] = []
     products: list[dict] = await read_local_products()
     for product in products:
-        res = await create_product(
-            product=ProductCreate.model_validate(product),
-            session=session
-        )
-        session.refresh(res)
-        result.append(res.model_copy(deep=True))
+        try:
+            res = await create_product(
+                product=ProductCreate.model_validate(product),
+                session=session
+            )
+            session.refresh(res)
+            result.append(res.model_copy(deep=True))
+        except Exception as e:
+            error_msg = f"ERROR: add_testing_products:\n{e}"
+            print(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
     return result
 
 @app.get("/testing/add_testing_purchase/")

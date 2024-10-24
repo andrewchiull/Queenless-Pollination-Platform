@@ -8,6 +8,16 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 dotenv.config();
 
+// Initial dropoff locations
+type Dropoff = {
+  address: string;
+  email: string;
+  lat: number;
+  id: number;
+  name: string;
+  lon: number;
+}
+
 export default function MapPage() {
   const IdsInputRef = useRef<HTMLInputElement>(null);
   const [ids, setIds] = useState<number[]>([]);
@@ -55,16 +65,6 @@ export default function MapPage() {
   const pointHopper: { [key: string]: any } = {};
   const lastAtRestaurant = 0;
   let keepTrack: any[] = [];
-
-  // Initial dropoff locations
-  type Dropoff = {
-    address: string;
-    email: string;
-    lat: number;
-    id: number;
-    name: string;
-    lon: number;
-  }
 
   useEffect(() => {
     if (!mapContainerRef.current) return;

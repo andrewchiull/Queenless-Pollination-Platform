@@ -25,6 +25,10 @@ class ProductUpdate(SQLModel):
     description: str | None = None
 
 # Customer classes
+class LatLon(SQLModel):
+    lat: float
+    lon: float
+
 class CustomerBase(SQLModel):
     name: str = Field(index=True)
     email: str = Field(index=True)
@@ -32,6 +36,8 @@ class CustomerBase(SQLModel):
 
 class Customer(CustomerBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    lat: float | None = Field(default=None)
+    lon: float | None = Field(default=None)
     purchase: list["Purchase"] = Relationship(back_populates="customer", link_model=PurchaseCustomerLink)
 
 class CustomerCreate(CustomerBase):
@@ -39,11 +45,8 @@ class CustomerCreate(CustomerBase):
 
 class CustomerPublic(CustomerBase):
     id: int
-
-class CustomerUpdate(SQLModel):
-    name: str | None = None
-    email: str | None = None
-    address: str | None = None
+    lat: float
+    lon: float
 
 # Item classes
 class ItemBase(SQLModel):
@@ -93,10 +96,6 @@ class PurchaseUpdate(SQLModel):
     description: str | None = None
     customer: CustomerCreate | None = None
     item: list[ItemCreate] | None = []
-
-class LatLon(SQLModel):
-    lat: float
-    lon: float
 
 class PurchaseAddressPublic(SQLModel):
     purchase_id: int

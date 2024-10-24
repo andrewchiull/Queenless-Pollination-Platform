@@ -154,9 +154,16 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
             .where(Customer.email == req.customer.email)
         ).first()
 
+        # Add latlon to new customer
+        if not existing_customer:
+            new_customer = Customer.model_validate(req.customer)
+            latlon = await testing_address_to_latlon(new_customer.address)
+            new_customer.lat = latlon.lat
+            new_customer.lon = latlon.lon
+
         db_purchase = Purchase(
             description=req.description,
-            customer=existing_customer or Customer.model_validate(req.customer),
+            customer=existing_customer or new_customer,
             item=[Item.model_validate(i) for i in req.item]
         )
 
@@ -241,16 +248,14 @@ async def add_testing_purchases(*, session: Session = Depends(get_session)):
     return result
 
 @app.post("/testing/address_to_latlon/")
-async def testing_address_to_latlon(body: Annotated[list[PurchaseAddressPublic] | None, Body(description="List of purchase addresses")] = None, *, session: Session = Depends(get_session)):
+async def testing_address_to_latlon(q: Annotated[str | None, Query(description="One address")] = None, *, session: Session = Depends(get_session)):
     unis: list[dict] = await read_local_universities()
-    mapping: dict[str, tuple[float, float]] = {uni["address"]: uni["latlon"] for uni in unis}
-
-    for address in body:
-        address.latlon = mapping[address.address] if address.address else None
-    return body
+    mapping: dict[str, dict[str, float]] = {uni["address"]: uni["latlon"] for uni in unis}
+    latlon = LatLon.model_validate(mapping[q]) if q else None
+    return latlon
 
 # get purchase id to latlon
 @app.get("/testing/latlon_from_purchase_id/")
 async def testing_latlon_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
-    addresses = await read_purchase_addresses_by_id(q, session=session)
-    return await testing_address_to_latlon(addresses, session=session)
+    purchases = await read_purchase_addresses_by_id(q, session=session)
+    return [await testing_address_to_latlon(purchase.address, session=session) for purchase in purchases]

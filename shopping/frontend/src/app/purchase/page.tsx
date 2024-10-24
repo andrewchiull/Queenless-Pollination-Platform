@@ -29,7 +29,7 @@ const PurchasePage: React.FC = () => {
         setLoading(false); // Set loading to false after data is fetched
       }
       // If no products are found, add testing products and purchases
-      if (response.data.length === 0) {
+      else if (response.data.length === 0) {
         // Add testing product if no products are found
         axios.get('/api/testing/add_testing_product/').then(response => {
           console.log("Testing product added!");

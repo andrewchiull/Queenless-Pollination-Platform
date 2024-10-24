@@ -176,11 +176,11 @@ export default function MapPage() {
         'waterway-label'
       );
 
-      // Add click event listener
-      map.current!.on('click', async (e) => {
-        await addWaypoint(e.lngLat);
-        updateDropoffs(dropoffs);
-      });
+      // // Add click event listener
+      // map.current!.on('click', async (e) => {
+      //   await addWaypoint(e.lngLat);
+      //   updateDropoffs(dropoffs);
+      // });
     });
   }, [initialDropoffs]);
 

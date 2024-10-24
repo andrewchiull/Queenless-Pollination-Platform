@@ -260,7 +260,7 @@ async def testing_address_to_latlon(q: Annotated[str | None, Query(description="
     return latlon
 
 # get purchase id to latlon
-@app.get("/testing/latlon_from_purchase_id/")
-async def testing_latlon_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
-    purchases = await read_purchase_addresses_by_id(q, session=session)
-    return [await testing_address_to_latlon(purchase.address, session=session) for purchase in purchases]
+@app.get("/testing/customer_from_purchase_id/")
+async def testing_customer_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
+    purchases = await read_purchase_by_id(q, session=session)
+    return [purchase.customer for purchase in purchases]

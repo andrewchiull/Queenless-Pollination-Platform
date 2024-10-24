@@ -9,6 +9,17 @@ import axios from 'axios';
 dotenv.config();
 
 export default function MapPage() {
+
+  useEffect(() => {
+    const ids = [4, 5, 6, 7, 8];
+    const query = `?q=${ids.join('&q=')}`;
+    axios.get(`/api/testing/customer_from_purchase_id/${query}`).then(response => {
+      console.log(response.data);
+    }).catch(error => {
+      console.error("There was an error fetching the products!", error);
+    });
+  }, []);
+
   // Mapbox Access Token
   mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'USE_YOUR_OWN_TOKEN';
 

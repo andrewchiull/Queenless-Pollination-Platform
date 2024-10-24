@@ -24,34 +24,8 @@ const PurchasePage: React.FC = () => {
 
   useEffect(() => {
     axios.get('/api/product/').then(response => {
-      if (response.data.length > 0) {
-        setProducts(response.data);
-        setLoading(false); // Set loading to false after data is fetched
-      }
-      // If no products are found, add testing products and purchases
-      else if (response.data.length === 0) {
-        // Add testing product if no products are found
-        axios.get('/api/testing/add_testing_product/').then(response => {
-          console.log("Testing product added!");
-        }).catch(error => {
-          console.error("There was an error adding the testing product!", error);
-        });
-
-        // Add testing purchase
-        axios.get('/api/testing/add_testing_purchase/').then(response => {
-          console.log("Testing purchase added!");
-        }).catch(error => {
-          console.error("There was an error adding the testing purchase!", error);
-        });
-
-        // get products again
-        axios.get('/api/product/').then(response => {
-          setProducts(response.data);
-          setLoading(false);
-        }).catch(error => {
-          console.error("There was an error fetching the products!", error);
-        });
-      }
+      setProducts(response.data);
+      setLoading(false); // Set loading to false after data is fetched
     }).catch(error => {
       console.error("There was an error fetching the products!", error);
     });

@@ -3,6 +3,8 @@
 import { Button, Card, CardContent, Container, Grid, Typography } from '@mui/material';
 import Gallery from './components/gallery';
 import * as React from "react";
+import axios from 'axios';
+import { useEffect } from 'react';
 
 
 // [javascript - React 18 TypeScript children FC - Stack Overflow](https://stackoverflow.com/questions/71788254/react-18-typescript-children-fc/71809927#71809927)
@@ -27,6 +29,26 @@ const CardInGridWrapper: React.FC<Props> = ({ children, padding }) => (
 );
 
 const Home = () => {
+  useEffect(() => {
+    axios.get('/api/product/').then(response => {
+      // If no products are found, add testing products and purchases
+      if (response.data.length === 0) {
+        axios.get('/api/testing/add_testing_product/').then(response => {
+          console.log("Testing product added!");
+        }).catch(error => {
+          console.error("There was an error adding the testing product!", error);
+        });
+
+        axios.get('/api/testing/add_testing_purchase/').then(response => {
+          console.log("Testing purchase added!");
+        }).catch(error => {
+          console.error("There was an error adding the testing purchase!", error);
+        });
+      }
+    }).catch(error => {
+      console.error("There was an error fetching the products!", error);
+    });
+  }, []);
 
   return (
     <Container style={{ margin: '2rem 0' }}>

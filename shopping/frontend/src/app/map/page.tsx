@@ -9,18 +9,32 @@ import axios from 'axios';
 dotenv.config();
 
 export default function MapPage() {
-
+  const IdsInputRef = useRef<HTMLInputElement>(null);
+  const [ids, setIds] = useState<number[]>([]);
   const [initialDropoffs, setInitialDropoffs] = useState<Dropoff[]>([]);
 
   useEffect(() => {
-    const ids = [4, 5, 6, 7, 8];
+    // Update the input field with the current ids
+    // If the input field is empty, return
+    if (!(IdsInputRef.current?.value)) return;
+
+    IdsInputRef.current.value = ids.join(',');
+    console.log("in the useEffect 1, ids: ", ids);
     const query = `?q=${ids.join('&q=')}`;
     axios.get(`/api/testing/customer_from_purchase_id/${query}`).then(response => {
       setInitialDropoffs(response.data);
     }).catch(error => {
       console.error("There was an error fetching the products!", error);
     });
-  }, []);
+  }, [ids]);
+
+  useEffect(() => {
+    // Update the map with the initial dropoffs
+    initialDropoffs.forEach(async (location) => {
+      await addWaypoint(new mapboxgl.LngLat(location.lon, location.lat));
+      updateDropoffs(dropoffs);
+    });
+  }, [initialDropoffs]);
 
   // Mapbox Access Token
   mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 'USE_YOUR_OWN_TOKEN';
@@ -53,7 +67,6 @@ export default function MapPage() {
   }
 
   useEffect(() => {
-    if (initialDropoffs.length === 0) return; // Wait for initialDropoffs to be set
     if (!mapContainerRef.current) return;
     if (map.current) return; // Initialize map only once
 
@@ -163,19 +176,13 @@ export default function MapPage() {
         'waterway-label'
       );
 
-      // Add initial dropoffs
-      initialDropoffs.forEach(async (location) => {
-        await addWaypoint(new mapboxgl.LngLat(location.lon, location.lat));
-        updateDropoffs(dropoffs);
-      });
-
       // Add click event listener
       map.current!.on('click', async (e) => {
         await addWaypoint(e.lngLat);
         updateDropoffs(dropoffs);
       });
     });
-  }, [initialDropoffs]); // Wait for initialDropoffs to be set
+  }, [initialDropoffs]);
 
   async function addWaypoint(lngLat: mapboxgl.LngLat) {
     const pt = turf.point([lngLat.lng, lngLat.lat], {
@@ -203,7 +210,7 @@ export default function MapPage() {
       const routeGeoJSON = turf.featureCollection([
         turf.feature(json.trips[0].geometry),
       ]);
-      
+
       const routeSource = map.current!.getSource('route');
       if (routeSource && 'setData' in routeSource) {
         (routeSource as mapboxgl.GeoJSONSource).setData(routeGeoJSON);
@@ -219,6 +226,7 @@ export default function MapPage() {
     const dropoffsSource = map.current!.getSource('dropoffs-symbol');
     if (dropoffsSource && 'setData' in dropoffsSource) {
       (dropoffsSource as mapboxgl.GeoJSONSource).setData(geojson);
+      console.log("geojson: ", geojson);
     } else {
       console.error('Dropoffs source not found or does not support setData');
     }
@@ -263,6 +271,29 @@ export default function MapPage() {
 
   return (
     <div>
+      <div 
+        style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          zIndex: 1,
+          backgroundColor: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }}
+      >
+        <input ref={IdsInputRef} type="text" placeholder="Enter Purchase IDs" />
+        <button onClick={() => {
+          // filter out negative numbers and empty strings
+          setIds(() => {
+            return IdsInputRef.current?.value.split(',')
+              .map(Number)
+              .filter((num: number) => num > 0)
+              || [];
+          });
+        }}>Submit</button>
+      </div>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100vh' }} />
       <style jsx global>{`
         .truck {

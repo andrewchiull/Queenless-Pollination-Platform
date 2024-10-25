@@ -131,6 +131,9 @@ About the two parameters related to slash redirect:
     - Result: (same as A)
         - FE on docker -> BE on docker: 
             - FE: `GET http://routing-backend:5001/product/ net::ERR_CONNECTION_REFUSED`
+            - BE: `"GET /product HTTP/1.1" 307 Temporary Redirect`
         - FE on local machine -> BE on docker: (same as above)
             - FE: OK
             - BE: `"GET /product/ HTTP/1.1" 200 OK`
+5. E: BE remove cors middleware: same as A, D
+6. F: FE remove `skipTrailingSlashRedirect`: ?

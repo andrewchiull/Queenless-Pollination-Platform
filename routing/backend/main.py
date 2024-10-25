@@ -36,7 +36,8 @@ def get_session():
     with Session(engine) as session:
         yield session
 
-app = FastAPI(lifespan=lifespan
+app = FastAPI(lifespan=lifespan,
+              redirect_slashes=False
               )
 
 # origins = [
@@ -60,7 +61,7 @@ async def read_root():
 
 # Product CRUD methods
 
-@app.post("/product/", response_model=ProductPublic)
+@app.post("/product", response_model=ProductPublic)
 async def create_product(*, session: Session = Depends(get_session), product: ProductCreate):
     try:
         print(f"Received product data: {product}")
@@ -85,7 +86,7 @@ async def create_product(*, session: Session = Depends(get_session), product: Pr
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/product/", response_model=list[ProductPublic])
+@app.get("/product", response_model=list[ProductPublic])
 async def read_products(
         *,
         session: Session = Depends(get_session),
@@ -100,7 +101,7 @@ async def read_products(
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/product/{product_id}/", response_model=ProductPublic)
+@app.get("/product/{product_id}", response_model=ProductPublic)
 async def read_product_by_id(*, session: Session = Depends(get_session), product_id: int):
     try:
         product = session.get(Product, product_id)
@@ -112,7 +113,7 @@ async def read_product_by_id(*, session: Session = Depends(get_session), product
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.patch("/product/{product_id}/", response_model=ProductPublic)
+@app.patch("/product/{product_id}", response_model=ProductPublic)
 async def update_product_by_id(*, session: Session = Depends(get_session), product_id: int, product: ProductUpdate):
     try:
         db_product = session.get(Product, product_id)
@@ -131,7 +132,7 @@ async def update_product_by_id(*, session: Session = Depends(get_session), produ
         raise HTTPException(status_code=500, detail=error_msg)
 
 
-@app.delete("/product/{product_id}/")
+@app.delete("/product/{product_id}")
 def delete_product(*, session: Session = Depends(get_session), product_id: int):
     product = session.get(Product, product_id)
     if not product:
@@ -142,7 +143,7 @@ def delete_product(*, session: Session = Depends(get_session), product_id: int):
 
 # Purchase methods
 
-@app.post("/purchase/", response_model=PurchasePublicDetailed)
+@app.post("/purchase", response_model=PurchasePublicDetailed)
 async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_session)):
     try:
         print(f"Received purchase data: {req}")
@@ -178,7 +179,7 @@ async def create_purchase(req: PurchaseCreate, session: Session = Depends(get_se
         print(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-@app.get("/purchase/", response_model=list[PurchasePublicDetailed])
+@app.get("/purchase", response_model=list[PurchasePublicDetailed])
 async def read_purchases(
         *,
         session: Session = Depends(get_session),
@@ -194,7 +195,7 @@ async def read_purchases(
         .order_by(Purchase.id)
     ).all()
 
-@app.get("/purchase/id/", response_model=list[PurchasePublicDetailed | None])
+@app.get("/purchase/id", response_model=list[PurchasePublicDetailed | None])
 async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs", gt=0)] = None, *, session: Session = Depends(get_session)):
     """ ## Get a list of purchases by their IDs.
     If a purchase is not found, it will be included in the response with `None`.
@@ -205,7 +206,7 @@ async def read_purchase_by_id(q: Annotated[list[int] | None, Query(description="
 
     return [session.get(Purchase, id) for id in q]
 
-@app.get("/purchase/id/address/", response_model=list[PurchaseAddressPublic])
+@app.get("/purchase/id/address", response_model=list[PurchaseAddressPublic])
 async def read_purchase_addresses_by_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
     """ ## Get a list of addresses of purchases by their IDs.
     If a purchase is not found, the corresponding address will be `None`.
@@ -223,7 +224,7 @@ async def read_purchase_addresses_by_id(q: Annotated[list[int] | None, Query(des
 # Testing methods
 # Called by the frontend to populate the database with testing data
 
-@app.get("/testing/add_testing_product/")
+@app.get("/testing/add_testing_product")
 async def add_testing_products(*, session: Session = Depends(get_session)):
     result: list[Product] = []
     products: list[dict] = await read_local_products()
@@ -241,7 +242,7 @@ async def add_testing_products(*, session: Session = Depends(get_session)):
             raise HTTPException(status_code=500, detail=error_msg)
     return result
 
-@app.get("/testing/add_testing_purchase/")
+@app.get("/testing/add_testing_purchase")
 async def add_testing_purchases(*, session: Session = Depends(get_session)):
     result: list[PurchasePublic] = []
     purchases: list[dict] = await read_local_purchases()
@@ -254,7 +255,7 @@ async def add_testing_purchases(*, session: Session = Depends(get_session)):
         result.append(res.model_copy(deep=True))
     return result
 
-@app.post("/testing/address_to_latlon/")
+@app.post("/testing/address_to_latlon")
 async def testing_address_to_latlon(q: Annotated[str | None, Query(description="One address")] = None, *, session: Session = Depends(get_session)):
     unis: list[dict] = await read_local_universities()
     mapping: dict[str, dict[str, float]] = {uni["address"]: uni["latlon"] for uni in unis}
@@ -262,7 +263,7 @@ async def testing_address_to_latlon(q: Annotated[str | None, Query(description="
     return latlon
 
 # get purchase id to latlon
-@app.get("/testing/customer_from_purchase_id/")
+@app.get("/testing/customer_from_purchase_id")
 async def testing_customer_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
     purchases = await read_purchase_by_id(q, session=session)
     return [purchase.customer for purchase in purchases]

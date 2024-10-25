@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
-from fastapi import Body, Depends, FastAPI, HTTPException, Query
+from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
@@ -37,8 +37,40 @@ def get_session():
         yield session
 
 app = FastAPI(lifespan=lifespan,
-              redirect_slashes=False
+              redirect_slashes=True
               )
+
+origins = [
+    "http://localhost:3000", # for local browser
+    "http://localhost:5001", # for handle_host to redirect from FE
+    "http://172.18.0.4:5001", # ip of the container running the FE on docker-compose
+    # "http://routing-backend:5001", # for docker-compose testing
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# [Solving Cross-Container Communication Issues Between Next.js and FastAPI in a Docker Environment | by Luke | Oct, 2024 | Medium](https://medium.com/@szz185/solving-cross-container-communication-issues-between-next-js-and-fastapi-in-a-docker-environment-7b218a270236)
+@app.middleware("http")
+async def handle_host(request: Request, call_next):
+    print(f"{request.headers.get('host') = }")
+    print(f"{request.scope['server'] = }")
+    if request.headers.get("host") == "routing-backend:5001":
+        request.scope["headers"] = [
+            (b"host", b"localhost:5001") if k == b"host" else (k, v)
+            for k, v in request.scope["headers"]
+        ]
+        request.scope["server"] = ("localhost", 5001)
+    print("after")
+    print(f"{request.headers.get('host') = }")
+    print(f"{request.scope['server'] = }")
+    response = await call_next(request)
+    return response
 
 # origins = [
 #     "http://localhost:3000",
@@ -263,7 +295,7 @@ async def testing_address_to_latlon(q: Annotated[str | None, Query(description="
     return latlon
 
 # get purchase id to latlon
-@app.get("/testing/customer_from_purchase_id")
+@app.get("/testing/customer_from_purchase_id/")
 async def testing_customer_from_purchase_id(q: Annotated[list[int] | None, Query(description="List of purchase IDs")] = None, *, session: Session = Depends(get_session)):
     purchases = await read_purchase_by_id(q, session=session)
     return [purchase.customer for purchase in purchases]

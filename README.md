@@ -84,3 +84,26 @@ The routing backend is located in `routing/backend/src/main.py`.
 
 - GET `/product`: Fetches all products from MySQL database. (If the database is not ready, it will fetch products from `routing/backend/data/product.json` instead.)
 - POST `/purchase`: Submits a new purchase.
+
+## Slash redirect
+
+About the two parameters related to slash redirect:
+- `skipTrailingSlashRedirect` in `shopping/frontend/next.config.mjs`
+- `redirect_slashes` in `routing/backend/main.py`
+
+1. A: Default:
+    - Config:
+        - FE: `skipTrailingSlashRedirect: false`
+        - BE: `redirect_slashes=True`
+    - Result:
+        - FE on docker -> BE on docker: 
+            - FE: `GET http://routing-backend:5001/product/ net::ERR_CONNECTION_REFUSED`
+            - BE: `"GET /product HTTP/1.1" 307 Temporary Redirect`
+        - FE on local machine -> BE on docker: 
+            - FE: OK
+            - BE: `"GET /product/ HTTP/1.1" 200 OK`
+2. B: 
+    - Config:
+        - FE: `skipTrailingSlashRedirect: false`
+        - BE: `redirect_slashes=False`
+    - Result: ?

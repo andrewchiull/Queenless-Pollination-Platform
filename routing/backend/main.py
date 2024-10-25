@@ -36,7 +36,9 @@ def get_session():
     with Session(engine) as session:
         yield session
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, 
+              redirect_slashes=True
+            )
 
 origins = [
     "http://localhost:3000",

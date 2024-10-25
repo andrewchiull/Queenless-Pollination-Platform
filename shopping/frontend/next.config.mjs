@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const nextConfig = {
+  skipTrailingSlashRedirect: false,
   async rewrites() {
     return [
       {

@@ -8,7 +8,7 @@ module.exports = {
       exec_mode: 'cluster', // Run in cluster mode
       env: {
         NODE_ENV: 'development',
-        PORT: 5000,
+        PORT: 5001,
       },
     },
     {

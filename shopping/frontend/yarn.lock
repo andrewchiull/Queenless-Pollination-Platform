@@ -1805,7 +1805,7 @@
 
 "@turf/rhumb-destination@^7.1.0":
   version "7.1.0"
-  resolved "https://registry.yarnpkg.com/@turf/rhumb-destination/-/rhumb-destination-7.1.0.tgz#fb519ee65000bf8e04354cdf63d070826bd92536"
+  resolved "https://registry.yarnpkg.com/@turf/rhumb-destination/-/rhumb-destination-7.1.0.tgz#fb519ee65001bf8e04354cdf63d070826bd92536"
   integrity sha512-WA2TeO3qrv5ZrzNihtTLLYu8X4kd12WEC6JKElm99XhgLao1/4ao2SJUi43l88HqwbrnNiq4TueGQ6tYpXGU7A==
   dependencies:
     "@turf/helpers" "^7.1.0"

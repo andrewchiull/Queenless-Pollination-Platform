@@ -3,7 +3,7 @@
 ## Services
 
 1. shopping-frontend: `localhost:3000`
-2. ~~ shopping-backend: `localhost:5000` ~~ **Deprecated:** Use routing-backend instead.
+2. ~~ shopping-backend: `localhost:5001` ~~ **Deprecated:** Use routing-backend instead.
 3. routing-backend: `localhost:5001`
 4. map-demo: `localhost:3000/map`
 5. db: `localhost:3306`: **Table names are SINGULAR!**

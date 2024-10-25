@@ -37,7 +37,7 @@ def get_session():
         yield session
 
 app = FastAPI(lifespan=lifespan, 
-              redirect_slashes=True
+              redirect_slashes=False
             )
 
 origins = [

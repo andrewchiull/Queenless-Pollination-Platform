@@ -113,22 +113,22 @@ About the two parameters related to slash redirect:
         - FE on local machine -> BE on docker: (same as above)
             - FE: `GET http://localhost:3000/api/product 404 (Not Found)`
             - BE: `"GET /product HTTP/1.1" 404 Not Found`
-3. C: (same as B)
+3. C:
     - Config:
         - FE: `skipTrailingSlashRedirect: true`
         - BE: `redirect_slashes=False`
-    - Result: 
+    - Result: (same as B)
         - FE on docker -> BE on docker: (same as above)
             - FE: `GET http://localhost:3000/api/product 404 (Not Found)`
             - BE: `"GET /product HTTP/1.1" 404 Not Found`
         - FE on local machine -> BE on docker: (same as above)
             - FE: `GET http://localhost:3000/api/product 404 (Not Found)`
             - BE: `"GET /product HTTP/1.1" 404 Not Found`
-4. D: (same as B)
+4. D:
     - Config:
         - FE: `skipTrailingSlashRedirect: true`
         - BE: `redirect_slashes=True`
-    - Result:
+    - Result: (same as A)
         - FE on docker -> BE on docker: 
             - FE: `GET http://routing-backend:5001/product/ net::ERR_CONNECTION_REFUSED`
         - FE on local machine -> BE on docker: (same as above)

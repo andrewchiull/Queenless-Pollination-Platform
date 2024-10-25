@@ -136,4 +136,4 @@ About the two parameters related to slash redirect:
             - FE: OK
             - BE: `"GET /product/ HTTP/1.1" 200 OK`
 5. E: BE remove cors middleware: same as A, D
-6. F: FE remove `skipTrailingSlashRedirect`: ?
+6. F: FE remove `skipTrailingSlashRedirect`: same as A, D, E

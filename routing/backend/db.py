@@ -20,20 +20,22 @@ engine = create_engine(DB_URL, echo=True, poolclass=NullPool)
 NUM_RETRIES=5
 RETRY_INTERVAL=5
 
-# Retry
-def retry_on_operational_error(func):
-    def wrapper(*args, **kwargs):
-        for _retry in range(NUM_RETRIES):
-            try:
-                return func(*args, **kwargs)
-            except OperationalError as e:
-                print(e)
-                print(f"{func.__name__} failed. {NUM_RETRIES - _retry} retries left...waiting {RETRY_INTERVAL} seconds...")
-                time.sleep(RETRY_INTERVAL)
-        raise Exception(f"{func.__name__} failed after {NUM_RETRIES} retries!")
-    return wrapper
+# # Retry
+# def retry_on_operational_error(func):
+#     def wrapper(*args, **kwargs):
+#         for _retry in range(NUM_RETRIES):
+#             try:
+#                 return func(*args, **kwargs)
+#             except OperationalError as e:
+#                 print(e)
+#                 print(f"{func.__name__} failed. {NUM_RETRIES - _retry} retries left...waiting {RETRY_INTERVAL} seconds...")
+#                 start = datetime.now()
+#                 while (datetime.now() - start) < timedelta(seconds=RETRY_INTERVAL):
+#                     time.sleep(0.1)
+#         raise Exception(f"{func.__name__} failed after {NUM_RETRIES} retries!")
+#     return wrapper
 
-@retry_on_operational_error
+# @retry_on_operational_error
 def create_db_and_tables():
     print(DB_URL)
     SQLModel.metadata.create_all(engine)

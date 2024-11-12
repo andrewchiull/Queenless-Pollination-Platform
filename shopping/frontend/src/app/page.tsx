@@ -2,41 +2,63 @@
 
 import { Button, Card, CardContent, Container, Grid, Typography } from '@mui/material';
 import Gallery from './components/gallery';
-import { styled } from "@mui/material/styles";
 import * as React from "react";
+import axios from 'axios';
+import { useEffect } from 'react';
 
-const CardContentCustomPadding = styled(CardContent)(`
-  padding: 0px;
-  &:last-child {
-    padding-bottom: 0px;
-  }
-`);
 
 // [javascript - React 18 TypeScript children FC - Stack Overflow](https://stackoverflow.com/questions/71788254/react-18-typescript-children-fc/71809927#71809927)
 type Props = {
   children?: React.ReactNode
+  padding?: string
 };
-const CardInGrid: React.FC<Props> = ({ children }) => (
+
+const CardInGridWrapper: React.FC<Props> = ({ children, padding }) => (
   <Grid item sx={{ width: '100%' }}>
     <Card>
-      <CardContentCustomPadding>
+      <CardContent sx={{
+        padding: padding || 0,
+        '&:last-child': {
+          paddingBottom: padding || 0,
+        },
+      }}>
         {children}
-      </CardContentCustomPadding>
+      </CardContent>
     </Card >
   </Grid>
 );
 
 const Home = () => {
+  useEffect(() => {
+    axios.get('/api/product/').then(response => {
+      // If no products are found, add testing products and purchases
+      if (response.data.length === 0) {
+        axios.get('/api/testing/add_testing_product/').then(response => {
+          console.log("Testing product added!");
+        }).catch(error => {
+          console.error("There was an error adding the testing product!", error);
+        });
+
+        axios.get('/api/testing/add_testing_purchase/').then(response => {
+          console.log("Testing purchase added!");
+        }).catch(error => {
+          console.error("There was an error adding the testing purchase!", error);
+        });
+      }
+    }).catch(error => {
+      console.error("There was an error fetching the products!", error);
+    });
+  }, []);
 
   return (
     <Container style={{ margin: '2rem 0' }}>
       <Grid container spacing={1}>
 
-        <CardInGrid>
+        <CardInGridWrapper>
           <Gallery />
-        </CardInGrid>
+        </CardInGridWrapper>
 
-        <CardInGrid>
+        <CardInGridWrapper>
           <Typography variant="h5"
             sx={{
               height: '10vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -45,32 +67,36 @@ const Home = () => {
           >
             無蜂王授粉媒合平台
           </Typography>
-        </CardInGrid>
+        </CardInGridWrapper>
 
-        <CardInGrid>
+        <CardInGridWrapper>
           <Button
             sx={{ width: '100%', fontSize: '1.5rem'}}
-            variant="contained" color="warning" onClick={() => window.location.href = '/order'}>
+            variant="contained" color="warning" onClick={() => window.location.href = '/purchase'}>
             立即下單
           </Button>
-        </CardInGrid>
+        </CardInGridWrapper>
 
-        <Grid item sx={{ width: '100%' }}>
-          <Card>
-            <CardContent>
-              <Typography variant="body1" gutterBottom
-              sx={{ color: 'text.secondary' }}>
-                無蜂王蜂箱以蜂王費洛蒙取代蜂巢內的蜂王，可解決瓜果農長期找不到蜜蜂授粉的困境。
-              </Typography>
+        <CardInGridWrapper padding="1rem">
+          <Typography variant="body1" gutterBottom
+            sx={{ color: 'text.secondary' }}>
+            無蜂王蜂箱以蜂王費洛蒙取代蜂巢內的蜂王，可解決瓜果農長期找不到蜜蜂授粉的困境。
+          </Typography>
 
-              <Typography variant="body1"
-              sx={{ color: 'text.disabled' }}>
-                臺灣大學昆蟲系教授楊恩誠研究團隊，完成智慧農業創新，利用費洛蒙讓蜂箱內僅需存有一片巢脾，以取代蜂巢內的蜂王，並將此無蜂王蜂箱應用於溫室內進行授粉的任務。
-              </Typography>
-            </CardContent>
-          </Card >
-        </Grid>
+          <Typography variant="body1"
+            sx={{ color: 'text.disabled' }}>
+            臺灣大學昆蟲系教授楊恩誠研究團隊，完成智慧農業創新，利用費洛蒙讓蜂箱內僅需存有一片巢脾，以取代蜂巢內的蜂王，並將此無蜂王蜂箱應用於溫室內進行授粉的任務。
+          </Typography>
+        </CardInGridWrapper>
 
+
+        <CardInGridWrapper>
+          <Button
+            sx={{ width: '100%', fontSize: '1.5rem'}}
+            variant="contained" color="info" onClick={() => window.location.href = '/map'}>
+            map
+          </Button>
+        </CardInGridWrapper>
 
       </Grid>
     </Container >
